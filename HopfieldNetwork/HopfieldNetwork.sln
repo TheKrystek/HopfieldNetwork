@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HopfieldNetwork", "HopfieldNetwork\HopfieldNetwork.csproj", "{2093FC38-9424-42CD-91EC-C84428486DDD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2093FC38-9424-42CD-91EC-C84428486DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2093FC38-9424-42CD-91EC-C84428486DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2093FC38-9424-42CD-91EC-C84428486DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2093FC38-9424-42CD-91EC-C84428486DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
