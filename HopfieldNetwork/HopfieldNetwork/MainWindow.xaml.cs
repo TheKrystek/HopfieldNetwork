@@ -21,8 +21,18 @@ namespace HopfieldNetwork
     public partial class MainWindow : Window
     {
         int iter = 0;
+        bool finished = false;
+
+        int neuronArraySize = 3;
+        int weightMatrixSize = 3;
+
+
+
         public MainWindow()
         {
+            // Oblicz rozmiar macirzy wag
+            weightMatrixSize =  neuronArraySize * neuronArraySize;
+
             InitializeComponent();
             textBlock1.Text = "";
             HopfieldNetwork.Network.test();
@@ -42,16 +52,27 @@ namespace HopfieldNetwork
             printNeurons(Network.neurons.ToArray(), 3);
         }
 
+
+        // Przycisk Iteruj
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            
-            iter++;
-            HopfieldNetwork.Network.Iterate();
-            textBlock1.Text += "Wynik iteracji " + iter + ":\n";
-            printNeurons(Network.neurons.ToArray(), 3);
-            this.drawArray(Network.weightMatrix, 9);
-            this.drawNeurons(Network.neurons.ToArray(), 3);
-            this.StatusLabel.Content = String.Format("Iteracja numer: {0}",iter);
+            if (!finished)
+            {
+                iter++;
+                HopfieldNetwork.Network.Iterate();
+                textBlock1.Text += "Wynik iteracji " + iter + ":\n";
+                printNeurons(Network.neurons.ToArray(), this.neuronArraySize);
+                this.drawArray(Network.weightMatrix, this.weightMatrixSize);
+                this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
+                //this.drawSummer(Network.neurons);
+                if (iter < this.weightMatrixSize)
+                    this.StatusLabel.Content = String.Format("Iteracja numer: {0}", iter);
+                else
+                {
+                    finished = true;
+                    this.StatusLabel.Content = "Osiągnięto stan stabilny";
+                }
+            }
         }
 
         void printArray(float[,] array, int n)
@@ -141,53 +162,118 @@ namespace HopfieldNetwork
         void drawNeurons(Neuron[] vector, int n)
         {
             neuronsWisualization.Children.Clear();
-            if (neuronsWisualization.ActualHeight > 0 && neuronsWisualization.ActualWidth > 0)
+            if (Network.enumerator.Current != null)
             {
-                int tileSize = getTileSize(n,neuronsWisualization);
-                // Ustaw marginesy
-                int startY = (int)(neuronsWisualization.ActualHeight - n * tileSize) / 2;
-                int startX = (int)(neuronsWisualization.ActualWidth - n * tileSize) / 2;
-                int x = 0;
-                int y = 0;
-                int i = 0;
-                foreach (var el in vector)
+                if (neuronsWisualization.ActualHeight > 0 && neuronsWisualization.ActualWidth > 0)
                 {
-                    SolidColorBrush brush = new SolidColorBrush();
-                    brush.Color = getColorFromWeight(el.getActivationState());
-
-                    Border tile = new Border()
+                    int tileSize = getTileSize(n, neuronsWisualization);
+                    // Ustaw marginesy
+                    int startY = (int)(neuronsWisualization.ActualHeight - n * tileSize) / 2;
+                    int startX = (int)(neuronsWisualization.ActualWidth - n * tileSize) / 2;
+                    int x = 0;
+                    int y = 0;
+                    int i = 0;
+                    foreach (var el in vector)
                     {
-                        BorderBrush = Brushes.Black,
-                        BorderThickness = new Thickness(1),
-                        Background = brush,
-                        Width = tileSize,
-                        Height = tileSize
-                    };
+                        SolidColorBrush brush = new SolidColorBrush();
+                        brush.Color = getColorFromWeight(el.getActivationState());
 
-                    tile.Child = new TextBlock()
-                    {
-                        Text = String.Format("{0:n0}", el.getActivationState()),
-                        HorizontalAlignment =
-                        HorizontalAlignment.Center,
-                        VerticalAlignment =
-                        VerticalAlignment.Center
-                    };
-                    neuronsWisualization.Children.Add(tile);
+                        Border tile = new Border()
+                        {
+                            BorderBrush = Brushes.Black,
+                            BorderThickness = new Thickness(1),
+                            Background = brush,
+                            Width = tileSize,
+                            Height = tileSize
+                        };
 
-                    Canvas.SetTop(tile, startY + tileSize * y - 1);
-                    Canvas.SetLeft(tile, startX + tileSize * x - 1);
-                    
-                    // Oblicz wsp dla rysowanych komórek
-                    i++;
-                    x++;
-                    if (i % n == 0)
-                    {
-                        y++;
-                        x = 0;
+                        tile.Child = new TextBlock()
+                        {
+                            Text = String.Format("{0:n0}", el.getActivationState()),
+                            HorizontalAlignment =
+                            HorizontalAlignment.Center,
+                            VerticalAlignment =
+                            VerticalAlignment.Center,
+                            FontWeight = (Network.enumerator.Current.getId() == i ? FontWeights.ExtraBold : FontWeights.Normal)
+                        };
+                        ;
+
+                        neuronsWisualization.Children.Add(tile);
+
+                        Canvas.SetTop(tile, startY + tileSize * y - 1);
+                        Canvas.SetLeft(tile, startX + tileSize * x - 1);
+
+                        // Oblicz wsp dla rysowanych komórek
+                        i++;
+                        x++;
+                        if (i % n == 0)
+                        {
+                            y++;
+                            x = 0;
+                        }
                     }
                 }
             }
         }
+
+        void drawSummer(Neuron[] vector, int n)
+        {
+            neuronsWisualization.Children.Clear();
+            if (Network.enumerator.Current != null)
+            {
+                if (neuronsWisualization.ActualHeight > 0 && neuronsWisualization.ActualWidth > 0)
+                {
+                    int tileSize = getTileSize(n, neuronsWisualization);
+                    // Ustaw marginesy
+                    int startY = (int)(neuronsWisualization.ActualHeight - n * tileSize) / 2;
+                    int startX = (int)(neuronsWisualization.ActualWidth - n * tileSize) / 2;
+                    int x = 0;
+                    int y = 0;
+                    int i = 0;
+                    foreach (var el in vector)
+                    {
+                        SolidColorBrush brush = new SolidColorBrush();
+                        brush.Color = getColorFromWeight(el.getActivationState());
+
+                        Border tile = new Border()
+                        {
+                            BorderBrush = Brushes.Black,
+                            BorderThickness = new Thickness(1),
+                            Background = brush,
+                            Width = tileSize,
+                            Height = tileSize
+                        };
+
+                        tile.Child = new TextBlock()
+                        {
+                            Text = String.Format("{0:n0}", el.getActivationState()),
+                            HorizontalAlignment =
+                            HorizontalAlignment.Center,
+                            VerticalAlignment =
+                            VerticalAlignment.Center,
+                            FontWeight = (Network.enumerator.Current.getId() == i ? FontWeights.ExtraBold : FontWeights.Normal)
+                        };
+                        ;
+
+                        neuronsWisualization.Children.Add(tile);
+
+                        Canvas.SetTop(tile, startY + tileSize * y - 1);
+                        Canvas.SetLeft(tile, startX + tileSize * x - 1);
+
+                        // Oblicz wsp dla rysowanych komórek
+                        i++;
+                        x++;
+                        if (i % n == 0)
+                        {
+                            y++;
+                            x = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         void printNeurons(Neuron[] vector, int n)
         {

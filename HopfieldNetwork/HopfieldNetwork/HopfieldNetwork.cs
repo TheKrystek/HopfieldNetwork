@@ -69,6 +69,7 @@ namespace HopfieldNetwork
                 enumerator.Dispose();
                 enumerator = neurons.GetEnumerator();
                 enumerator.MoveNext();
+                Console.WriteLine("enumerator "+enumerator);
             }
             Debug.WriteLine("Current neuron:" + enumerator.Current.getId());
             enumerator.Current.calculateEffectiveInput(neurons, weightMatrix);
@@ -82,7 +83,12 @@ namespace HopfieldNetwork
 
             Debug.WriteLine("");
         }
+
+
+     
     }
+
+
 
     class Neuron
     {
@@ -90,7 +96,7 @@ namespace HopfieldNetwork
         int activationState;
         float effectiveInput;
         float prevActivationState;
-
+        PartialReults pr;
 
 
         public int getActivationState()
@@ -107,14 +113,21 @@ namespace HopfieldNetwork
         {
             //  this.prevActivationState = this.activationState;
             this.effectiveInput = 0;
+            pr = new PartialReults(this.id);
             foreach (Neuron n in neurons)
             {
                 if (this.id == n.getId()) continue;
                 this.effectiveInput += weightMatrix[this.id, n.getId()] * n.getActivationState();
+                this.pr.addPartialResults(n.getId(), n.getActivationState(), weightMatrix[this.id, n.getId()], this.effectiveInput);
                 Debug.WriteLine(this.id + " " + n.getId() + " " + n.getActivationState() + " " + weightMatrix[this.id, n.getId()] + " " + this.effectiveInput);
             }
             //  this.effectiveInput += prevActivationState;
             //Debug.Write(" " +effectiveInput + " ");
+        }
+
+        public PartialReults getPartialResults()
+        {
+            return pr;
         }
 
         public void setActivationState()
@@ -122,6 +135,7 @@ namespace HopfieldNetwork
             Debug.Write("eff " + effectiveInput + " \n");
             if (this.effectiveInput > 0) this.activationState = 1;
             else if (this.effectiveInput < 0) this.activationState = -1;
+
         }
         public Neuron(int input, int id)
         {
@@ -130,6 +144,33 @@ namespace HopfieldNetwork
             this.effectiveInput = 0;
             // this.prevActivationState = 0;
         }
+    }
+
+
+
+    class PartialReults {
+        public PartialReults(int id) {
+            this.id = id;
+            this.connections = new List<int>();
+            this.weights = new List<float>();
+            this.inputs = new List<int>();
+            this.outputs = new List<float>();
+        }
+
+        public void addPartialResults(int connection, int input, float weight, float output) {
+            this.connections.Add(connection);
+            this.inputs.Add(input);
+            this.weights.Add(weight);
+            this.outputs.Add(output);
+        }
+
+        public int id {get;set;}
+        public List<int> connections { get; set; }
+        public List<int> inputs { get; set; }
+        public List<float> weights { get; set; }
+        public List<float> outputs { get; set; }
+
+
     }
 }
 
