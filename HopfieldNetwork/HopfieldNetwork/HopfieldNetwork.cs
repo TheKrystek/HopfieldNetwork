@@ -154,21 +154,21 @@ namespace HopfieldNetwork
             this.connections = new List<int>();
             this.weights = new List<float>();
             this.inputs = new List<int>();
-            this.outputs = new List<float>();
+           
         }
 
         public void addPartialResults(int connection, int input, float weight, float output) {
             this.connections.Add(connection);
             this.inputs.Add(input);
             this.weights.Add(weight);
-            this.outputs.Add(output);
+            this.output = output;
         }
 
         public int id {get;set;}
         public List<int> connections { get; set; }
         public List<int> inputs { get; set; }
         public List<float> weights { get; set; }
-        public List<float> outputs { get; set; }
+        public float output { get; set; }
 
 
     }
