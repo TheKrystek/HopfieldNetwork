@@ -176,35 +176,51 @@ namespace HopfieldNetwork
                 weightsWisualization.Children.Clear();
                 if (weightsWisualization.ActualHeight > 0 && weightsWisualization.ActualWidth > 0)
                 {
-                    int tileSize = getTileSize(n, weightsWisualization);
+                    int tileSize = getTileSize(n+2, weightsWisualization);
                     // Ustaw marginesy
                     int startY = (int)(weightsWisualization.ActualHeight - n * tileSize) / 2;
                     int startX = (int)(weightsWisualization.ActualWidth - n * tileSize) / 2;
 
                     PartialReults pr = Network.enumerator.Current.getPartialResults();
-                    for (int x = 0; x < n; x++)
+                    for (int x = -1; x < n; x++)
                     {
-                        for (int y = 0; y < n; y++)
+                        for (int y = -1; y < n; y++)
                         {
+
+                            FontWeight fw = FontWeights.Normal;
+                            int th = 1;
                             SolidColorBrush brush = new SolidColorBrush();
-                            brush.Color = getColorFromWeight(array[x, y]);
+                            brush.Color = Colors.White;
+                            String text = (x > y ? x + 1: y + 1).ToString();
+                            // Jezeli indeks nie jest ujemny
+                            if (x >= 0 && y >= 0) { 
+                                brush.Color = getColorFromWeight(array[x, y]);
+                                text = String.Format("{0:n2}", array[x, y]); 
+                            }
+
+                            if ((x == pr.id && pr.connections.IndexOf(y) >= 0) || (y == pr.id && pr.connections.IndexOf(x) >= 0))
+                            {
+                                fw = FontWeights.Bold;
+                                th = 2;
+                            }
 
                             Border tile = new Border()
                             {
-                                BorderBrush = Brushes.Black,
-                                BorderThickness = new Thickness(1),
-                                Background = brush,
+                                BorderBrush = (x < 0 || y < 0 ? Brushes.Transparent : Brushes.Black),
+                                BorderThickness =  new Thickness(th),
+                                Background = (x < 0 || y < 0 ? Brushes.Transparent : brush),
                                 Width = tileSize,
                                 Height = tileSize
                             };
 
-                            FontWeight fw = FontWeights.Normal;
+                           
                             if (x == pr.id && pr.connections.IndexOf(y) >= 0)
                                 fw = FontWeights.Bold;
 
+
                             tile.Child = new TextBlock()
                             {
-                                Text = String.Format("{0:n2}", array[x, y]),
+                                Text = text,
                                 HorizontalAlignment =
                                 HorizontalAlignment.Center,
                                 VerticalAlignment =
@@ -246,7 +262,7 @@ namespace HopfieldNetwork
                         Border tile = new Border()
                         {
                             BorderBrush = Brushes.Black,
-                            BorderThickness = new Thickness(1),
+                            BorderThickness = new Thickness((Network.enumerator.Current.getId() == i ? 2 : 1)),
                             Background = brush,
                             Width = tileSize,
                             Height = tileSize
@@ -291,7 +307,7 @@ namespace HopfieldNetwork
             int marginBottom = 50;
             int padding = 10;
             int number = pr.weights.Count;
-            int space = (int)(summer.ActualWidth - 2*marginLeftRight) / number;
+            int space = (int)(summer.ActualWidth - 2*marginLeftRight) / (number+1);
             #endregion
             
             // Wyczysc poprzedni stan plotna 
@@ -366,35 +382,25 @@ namespace HopfieldNetwork
                 #endregion
 
                 #region rysowanie wartosci posrednich
-                for (int i = 1; i <= number; i++)
+                for (int i = 0; i < number; i++)
                 {
-                    Line line = new Line
-                    {
-                        X1 = 0.5 * marginLeftRight + i * space,
-                        Y1 = marginTop - 5,
-                        X2 = 0.5 * marginLeftRight + i * space,
-                        Y2 = marginTop,
-                        StrokeThickness = Thickness,
-                        Stroke = b
-                    };
-                    summer.Children.Add(line);
-
                     TextBlock tb = new TextBlock()
                     {
-                        Text = String.Format("{0:n0}*{1:n2}", pr.inputs[i-1],pr.weights[i-1]),
+                        Text = String.Format("{0:n0}*{1:n2}", pr.inputs[i],pr.weights[i]),
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
-                        Background= new SolidColorBrush(getColorFromWeight((double)pr.weights[i - 1]))
+                        Background= new SolidColorBrush(getColorFromWeight((double)pr.weights[i]))
+                       
                         //FontWeight = (Network.enumerator.Current.getId() == i ? FontWeights.ExtraBold : FontWeights.Normal)
                     };
                     summer.Children.Add(tb);
                     Canvas.SetTop(tb, 0);
-                    Canvas.SetLeft(tb, 0.5 * marginLeftRight + i * space - 20); 
+                    Canvas.SetLeft(tb, marginLeftRight + (i+1) * space ); 
                 }
 
                 TextBlock output = new TextBlock()
                 {
-                    Text = String.Format("{0:n0}", pr.output),
+                    Text = String.Format("sgn({0:f2}) = {1}", pr.output, (pr.output >= 0 ? 1 : -1)),
                     HorizontalAlignment =
                     HorizontalAlignment.Center,
                     VerticalAlignment =
@@ -406,7 +412,7 @@ namespace HopfieldNetwork
                 };
                 summer.Children.Add(output);
                 Canvas.SetTop(output, summer.ActualHeight - marginBottom);
-                Canvas.SetLeft(output, summer.ActualWidth / 2 - 10); 
+                Canvas.SetLeft(output, summer.ActualWidth / 2 - 120); 
 
                 #endregion
             }
