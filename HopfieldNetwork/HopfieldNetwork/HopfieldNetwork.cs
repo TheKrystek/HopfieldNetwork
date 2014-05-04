@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 namespace HopfieldNetwork
 {
@@ -13,6 +14,7 @@ namespace HopfieldNetwork
         public static List<Neuron> neurons = new List<Neuron>();
         public static List<int[]> learningVectors = new List<int[]>();
         public static List<Neuron>.Enumerator enumerator;
+        public static int xsize = 3, ysize = 3;
 
         static void setWeights(int n)
         {
@@ -32,21 +34,122 @@ namespace HopfieldNetwork
 
         }
 
+        public static void savePattern(int[] pattern, string filename)
+        {
+            FileStream fs = new FileStream(filename, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+            int mask = 7;
+            byte b = 0;
+            fs.Write(BitConverter.GetBytes(xsize), 0, 4);
+            fs.Write(BitConverter.GetBytes(ysize), 0, 4);
+            List<byte> bytes = new List<byte>();
+            for (int i = 0; i < xsize * ysize; i++)
+            {
+                if (mask < 0)
+                {
+                    Debug.Write("Byte " + Convert.ToString(b, 2) + "\n");
+                    bytes.Add(b);
+                    mask = 7;
+                    b = 0;
 
+                }
+                if (pattern[i] == 1)
+                {
+                    b |= (byte)(1 << mask);
+                }
+                else if (pattern[i] == -1)
+                {
+
+                }
+                mask--;
+            }
+
+            if (mask > 0)
+            {
+                bytes.Add(b);
+                Debug.Write("Byte " + Convert.ToString(b, 2) + "\n");
+            }
+            fs.Write(bytes.ToArray(), 0, bytes.Count);
+            fs.Close();
+        }
+
+        public static int[] loadPattern(string filename)
+        {
+            FileStream fs = new FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            int x = 0;
+            x += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
+            int y = 0;
+            y += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
+
+            if ((xsize == 0 && ysize == 0))
+            {
+                xsize = x;
+                ysize = y;
+            }
+
+            if ((xsize != x || ysize != y)) return null;
+
+
+            // else return null;
+
+            List<byte> bytes = new List<byte>();
+            List<int> ret = new List<int>();
+
+            int count = 0;
+            int counter = xsize * ysize;
+            if ((xsize * ysize) % 8 != 0)
+            {
+                count = (xsize * ysize) / 8 + 1;
+            }
+            else count = (xsize * ysize) / 8;
+            Debug.Write("C " + count + "\n");
+
+            for (int i = 0; i < count; i++)
+            {
+                byte bb = (byte)fs.ReadByte();
+                Debug.Write(bb + " ");
+                bytes.Add(bb);
+            }
+
+            // foreach (byte i in bytes) Debug.Write(i + " ");
+
+            foreach (byte b in bytes)
+            {
+
+                for (int mask = 7; mask >= 0; mask--)
+                {
+                    if (counter == 0) break;
+                    if (((b >> mask) & 1) == 1)
+                    {
+                        ret.Add(1);
+                    }
+                    else
+                    {
+                        ret.Add(-1);
+                    }
+                    counter--;
+                }
+
+            }
+            foreach (int i in ret) Debug.Write(i + " ");
+            return ret.ToArray();
+        }
 
         public static void test()
         {
             int[] t1 = new int[9] { -1, -1, -1, -1, 1, -1, -1, -1, -1 };
             int[] t2 = new int[9] { -1, 1, -1, 1, -1, 1, -1, 1, -1 };
             int[] t3 = new int[9] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-
+            //savePattern(t1,"C:\\t1.p");
+           // int[] t4 = loadPattern("C:\\t1.p");
             // int[] testVector = new int[9] { 1, -1, 1, -1, -1, 1, 1, -1, 1 };
             int[] testVector = new int[9] { -1, 1, -1, 1, 1, -1, -1, 1, -1 };
+           
             learningVectors.Add(t1);
             learningVectors.Add(t2);
             learningVectors.Add(t3);
             setWeights(9);
             //  printArray(weightMatrix,9);
+            
             for (int i = 0; i < 9; i++)
             {
                 neurons.Add(new Neuron(testVector[i], i));
