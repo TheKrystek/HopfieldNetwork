@@ -36,6 +36,11 @@ namespace HopfieldNetwork
         public static RoutedCommand ZmniejszPredkoscCom = new RoutedCommand();
         public static RoutedCommand ZwiekszPredkoscCom = new RoutedCommand();
 
+
+        bool pokazSumator = false;
+        bool pokazWagi = true;
+
+
         public MainWindow()
         {
             // Oblicz rozmiar macirzy wag
@@ -211,8 +216,9 @@ namespace HopfieldNetwork
                                 Background = (x < 0 || y < 0 ? Brushes.Transparent : brush),
                                 Width = tileSize,
                                 Height = tileSize
+                                
                             };
-
+                            tile.PreviewMouseDown += klikniecie;
                            
                             if (x == pr.id && pr.connections.IndexOf(y) >= 0)
                                 fw = FontWeights.Bold;
@@ -237,6 +243,11 @@ namespace HopfieldNetwork
                     }
                 }
             }
+        }
+
+        private void klikniecie(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("klik");
         }
 
 
@@ -267,6 +278,7 @@ namespace HopfieldNetwork
                             Width = tileSize,
                             Height = tileSize
                         };
+                        tile.PreviewMouseDown += przelaczStan;
 
                         tile.Child = new TextBlock()
                         {
@@ -295,6 +307,12 @@ namespace HopfieldNetwork
                     }
                 }
             }
+        }
+
+        private void przelaczStan(object sender, MouseButtonEventArgs e)
+        {
+            TextBlock tb = (TextBlock)sender;
+        
         }
 
         void drawSummer(PartialReults pr)
@@ -473,6 +491,38 @@ namespace HopfieldNetwork
             }
         }
 
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            // Wczytaj
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.DefaultExt = ".txt";
+            dlg.Filter = "Pliki tekstowe (*.txt)|*.txt|Pliki out (*.out)|*.out|Wszystkie pliki (*.*)|*.*";
+            Nullable<bool> result = dlg.ShowDialog();
+            // Jezeli nie wybrano anuluj
+            if (result == true)
+            {
+                int[] t4 = Network.loadPattern(dlg.FileName);
+            }
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            // Zapisz
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.DefaultExt = ".txt";
+            dlg.Filter = "Pliki tekstowe (*.txt)|*.txt|Pliki out (*.out)|*.out|Wszystkie pliki (*.*)|*.*";
+            Nullable<bool> result = dlg.ShowDialog();
+            // Jezeli nie wybrano anuluj
+            if (result == true)
+            {
+                int[] t4 = Network.loadPattern(dlg.FileName);
+                Network.savePattern(t4,dlg.FileName);
+            }
+        }
+
+
+
+ 
   
 
     }
