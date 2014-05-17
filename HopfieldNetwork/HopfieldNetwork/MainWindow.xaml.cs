@@ -25,12 +25,19 @@ namespace HopfieldNetwork
     public partial class MainWindow 
 
     {
+        
+
         int iter = 0;
         bool finished = false;
 
         int neuronArraySize = 3;
         int weightMatrixSize = 3;
         int delay = 1400;
+
+        bool editMode = true;
+
+        int[] learningVector;
+
         private readonly BackgroundWorker worker = new BackgroundWorker();
 
         public static RoutedCommand ZmniejszPredkoscCom = new RoutedCommand();
@@ -47,26 +54,9 @@ namespace HopfieldNetwork
             weightMatrixSize =  neuronArraySize * neuronArraySize;
 
             InitializeComponent();
-            textBlock1.Text = "";
-            HopfieldNetwork.Network.test();
-            textBlock1.Text += "Macierz wag:\n";
-            printArray(Network.weightMatrix, 9);
-
-            int i = 0;
-            textBlock1.Text += "Wektory uczące:\n";
-            foreach (int[] l in Network.learningVectors)
-            {
-                textBlock1.Text += "Wektor " + i + ":\n";
-                printVector(l, 3);
-                i++;
-            }
-
-            textBlock1.Text += "Stan początkowy sieci:\n";
-            printNeurons(Network.neurons.ToArray(), 3);
-
             worker.DoWork += worker_DoWork;
-           
 
+            this.CreateLearningVector();
 
             // Zbinduj skroty klawiszowe
             CommandBinding cb4 = new CommandBinding(ZwiekszPredkoscCom, ZwiekszPredkosc);
@@ -114,7 +104,6 @@ namespace HopfieldNetwork
                 HopfieldNetwork.Network.Iterate();
 
                 Action action = () => {
-                    printNeurons(Network.neurons.ToArray(), this.neuronArraySize);
                     this.drawArray(Network.weightMatrix, this.weightMatrixSize);
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
 
@@ -127,26 +116,18 @@ namespace HopfieldNetwork
                         this.StatusLabel.Content = "Osiągnięto stan stabilny";
                     }     
                 };
+               
 
                 var dispatcher = StatusLabel.Dispatcher;
                 if (dispatcher.CheckAccess())
                     action();
                 else
-                    dispatcher.Invoke(action);       
+                    dispatcher.Invoke(action);    
+                
             }
         }
 
-        void printArray(float[,] array, int n)
-        {
-            for (int x = 0; x < n; x++)
-            {
-                for (int y = 0; y < n; y++)
-                {
-                    textBlock1.Text += array[x, y].ToString("0.####") + "\t";
-                }
-                textBlock1.Text += "\n";
-            }
-        }
+
 
 
         
@@ -183,45 +164,53 @@ namespace HopfieldNetwork
                 {
                     int tileSize = getTileSize(n+2, weightsWisualization);
                     // Ustaw marginesy
-                    int startY = (int)(weightsWisualization.ActualHeight - n * tileSize) / 2;
+                    int startY = (int)(weightsWisualization.ActualHeight - n * tileSize) / 4;
                     int startX = (int)(weightsWisualization.ActualWidth - n * tileSize) / 2;
 
                     PartialReults pr = Network.enumerator.Current.getPartialResults();
-                    for (int x = -1; x < n; x++)
+                    for (int y = 0; y <= n; y++)
                     {
-                        for (int y = -1; y < n; y++)
+                        for (int x = -1; x <= y; x++)
                         {
 
                             FontWeight fw = FontWeights.Normal;
                             int th = 1;
                             SolidColorBrush brush = new SolidColorBrush();
                             brush.Color = Colors.White;
-                            String text = (x > y ? x + 1: y + 1).ToString();
+                            String text = (x < 0 ? y+1 : x + 1).ToString();
+                         
                             // Jezeli indeks nie jest ujemny
-                            if (x >= 0 && y >= 0) { 
+                            if (x >= 0 && y < n) { 
                                 brush.Color = getColorFromWeight(array[x, y]);
                                 text = String.Format("{0:n2}", array[x, y]); 
                             }
 
-                            if ((x == pr.id && pr.connections.IndexOf(y) >= 0) || (y == pr.id && pr.connections.IndexOf(x) >= 0))
-                            {
-                                fw = FontWeights.Bold;
-                                th = 2;
-                            }
+                            if (x == n || (y == n && x == -1))
+                                text = "";
+
+                            // Zaznaczaj aktualne komorki jedynie w trybie symulacji
+                            if (!this.editMode)
+                                if ((x == pr.id && pr.connections.IndexOf(y) >= 0) || (y == pr.id && pr.connections.IndexOf(x) >= 0))
+                                {
+                                    fw = FontWeights.Bold;
+                                    th = 2;
+                                }
 
                             Border tile = new Border()
                             {
-                                BorderBrush = (x < 0 || y < 0 ? Brushes.Transparent : Brushes.Black),
+                                BorderBrush = (x < 0 || y == n ? Brushes.Transparent : Brushes.Black),
                                 BorderThickness =  new Thickness(th),
-                                Background = (x < 0 || y < 0 ? Brushes.Transparent : brush),
+                                Background = (x < 0 || y > n? Brushes.Transparent : brush),
                                 Width = tileSize,
                                 Height = tileSize
                                 
                             };
                             tile.PreviewMouseDown += klikniecie;
-                           
-                            if (x == pr.id && pr.connections.IndexOf(y) >= 0)
-                                fw = FontWeights.Bold;
+
+                            // Zaznaczaj aktualne komorki jedynie w trybie symulacji
+                            if (!this.editMode)
+                                if (x == pr.id && pr.connections.IndexOf(y) >= 0)
+                                    fw = FontWeights.Bold;
 
 
                             tile.Child = new TextBlock()
@@ -273,10 +262,11 @@ namespace HopfieldNetwork
                         Border tile = new Border()
                         {
                             BorderBrush = Brushes.Black,
-                            BorderThickness = new Thickness((Network.enumerator.Current.getId() == i ? 2 : 1)),
+                            BorderThickness = new Thickness((Network.enumerator.Current.getId() == i && editMode == false ? 2 : 1)),
                             Background = brush,
                             Width = tileSize,
-                            Height = tileSize
+                            Height = tileSize,
+                            Uid = i.ToString()
                         };
                         tile.PreviewMouseDown += przelaczStan;
 
@@ -287,7 +277,7 @@ namespace HopfieldNetwork
                             HorizontalAlignment.Center,
                             VerticalAlignment =
                             VerticalAlignment.Center,
-                            FontWeight = (Network.enumerator.Current.getId() == i ? FontWeights.ExtraBold : FontWeights.Normal)
+                            FontWeight = (Network.enumerator.Current.getId() == i && editMode == false ? FontWeights.ExtraBold : FontWeights.Normal)
                         };
                         ;
 
@@ -311,9 +301,35 @@ namespace HopfieldNetwork
 
         private void przelaczStan(object sender, MouseButtonEventArgs e)
         {
-            TextBlock tb = (TextBlock)sender;
-        
+            // Zmiana wartosci pola jedynie w trybie edycji
+            if (editMode)
+            {
+                Border border = sender as Border;
+                if (border != null) { 
+                    TextBlock tb = border.Child as TextBlock;
+                    if (tb != null) { 
+                        // Przłącz stan 
+                        SolidColorBrush brush = new SolidColorBrush();
+                        brush.Color = (tb.Text == "1" ? getColorFromWeight(-1) : getColorFromWeight(1));
+                        border.Background = brush;
+                        int index = Int32.Parse(border.Uid);
+                        this.learningVector[index] = (tb.Text == "1" ? -1 : 1);
+                        tb.Text = (tb.Text == "1" ? "-1" : "1");
+                        Console.Write("[ ");
+                        for (int i = 0; i < learningVector.Length; i++)
+                            Console.Write(learningVector[i]+" ");
+                        Console.WriteLine("]");
+                    }
+                }
+            }
         }
+
+        private void CreateLearningVector() {
+            this.learningVector = new int[weightMatrixSize];
+            for (int i = 0; i < learningVector.Length; i++)
+                learningVector[i] = -1;
+        }
+
 
         void drawSummer(PartialReults pr)
         {
@@ -438,27 +454,9 @@ namespace HopfieldNetwork
 
 
 
-        void printNeurons(Neuron[] vector, int n)
-        {
-            int i = 0;
-            foreach (Neuron el in vector)
-            {
-                textBlock1.Text += el.getActivationState() + "\t";
-                i++;
-                if (i % n == 0) textBlock1.Text += "\n";
-            }
-        }
 
-        void printVector(int[] vector, int n)
-        {
-            int i = 0;
-            foreach (int el in vector)
-            {
-                textBlock1.Text += el + "\t";
-                i++;
-                if (i % n == 0) textBlock1.Text += "\n";
-            }
-        }
+
+
 
       
 
@@ -520,7 +518,103 @@ namespace HopfieldNetwork
             }
         }
 
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            // Stworz nowa siec o wymiarach N x N
+            HopfieldNetwork.Network.InitializeNetwork(neuronArraySize);
+            // Zresetuj wektor uczącu
+            this.CreateLearningVector();
+            if (!finished)
+            {
+                // Ustaw tryb edycji sieci
+                this.editMode = true;
+                HopfieldNetwork.Network.Iterate();
+               
+                Action action = () =>
+                {
+                    this.drawArray(Network.weightMatrix, this.weightMatrixSize);
+                    this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
+                    this.drawSummer(Network.enumerator.Current.getPartialResults());
+             
+                };
+                var dispatcher = StatusLabel.Dispatcher;
+                if (dispatcher.CheckAccess())
+                    action();
+                else
+                    dispatcher.Invoke(action);
 
+            }
+        }
+   
+        // Zapisz stan sieci jako wektor uczacy
+        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        {
+            String vektor = "[";
+            
+            for (int i = 0; i < learningVector.Length; i++)
+             vektor += (learningVector[i]+" ");
+            vektor += "] - Wektor " + (LearningVectorsList.Items.Count + 1).ToString();
+
+            this.LearningVectorsList.Items.Add(vektor);
+            Console.WriteLine("zapisano do listy");
+        }
+
+        // Wczytaj stan sieci z wektora uczacego na liscie
+        private void LearningVectorsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (LearningVectorsList.SelectedItem != null)
+            {
+                this.loadLearningVectorFromString(this.LearningVectorsList.SelectedItem.ToString());
+            }
+        }
+
+
+        private void loadLearningVectorFromString(String text, bool addToLerningVectors = false) {
+            int[] vector = new int[weightMatrixSize];
+            text = text.Substring(1, text.IndexOf(']') - 2);
+            string[] numbers = text.Split(' ');
+            int i = 0;
+            HopfieldNetwork.Network.neurons.Clear();
+            foreach (string number in numbers)
+            {
+                HopfieldNetwork.Network.neurons.Add(new Neuron(int.Parse(number), i));
+                vector[i++] = int.Parse(number);
+            }
+            if (addToLerningVectors) {
+                HopfieldNetwork.Network.learningVectors.Add(vector);
+                HopfieldNetwork.Network.setWeights();
+            }
+            this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
+        }
+
+
+        // LearningVectorList ContextMenu Usun
+        private void MenuItem_Click_5(object sender, RoutedEventArgs e)
+        {
+            if (LearningVectorsList.SelectedIndex == -1) return;
+            LearningVectorsList.Items.RemoveAt(LearningVectorsList.SelectedIndex);
+        }
+
+        // LearningVectorList ContextMenu Nazwij
+        private void MenuItem_Click_6(object sender, RoutedEventArgs e)
+        {
+            if (LearningVectorsList.SelectedIndex == -1) return;
+            String nazwa = LearningVectorsList.SelectedItem.ToString();
+            Console.WriteLine(nazwa.Substring(0, nazwa.IndexOf(']')+1));
+
+            String n = nazwa.Substring(nazwa.IndexOf(']') + 4);
+            if (n.IndexOf('✓') >= 0)
+                n = n.Substring(0,n.Length - 3);
+            Console.WriteLine(n);
+        }
+
+        private void DodajWektorDoSieciNeuronowej(object sender, RoutedEventArgs e)
+        {
+            if (LearningVectorsList.SelectedIndex == -1) return;
+            this.loadLearningVectorFromString(LearningVectorsList.SelectedItem.ToString(),true);
+            drawArray(HopfieldNetwork.Network.weightMatrix,weightMatrixSize);
+            this.LearningVectorsList.Items[LearningVectorsList.SelectedIndex] += " ✓";
+        }
 
  
   

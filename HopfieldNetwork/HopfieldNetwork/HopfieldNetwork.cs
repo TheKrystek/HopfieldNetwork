@@ -14,12 +14,12 @@ namespace HopfieldNetwork
         public static List<Neuron> neurons = new List<Neuron>();
         public static List<int[]> learningVectors = new List<int[]>();
         public static List<Neuron>.Enumerator enumerator;
-        public static int xsize = 3, ysize = 3;
+        public static int size = 3;
 
-        static void setWeights(int n)
+        public  static void setWeights()
         {
+            int n = size * size;
             weightMatrix = new float[n, n];
-
             for (int x = 0; x < n; x++)
                 for (int y = 0; y < n; y++)
                 {
@@ -31,7 +31,6 @@ namespace HopfieldNetwork
                     }
                     weightMatrix[x, y] = weightMatrix[x, y] / n;
                 }
-
         }
 
         public static void savePattern(int[] pattern, string filename)
@@ -39,10 +38,10 @@ namespace HopfieldNetwork
             FileStream fs = new FileStream(filename, System.IO.FileMode.Create, System.IO.FileAccess.Write);
             int mask = 7;
             byte b = 0;
-            fs.Write(BitConverter.GetBytes(xsize), 0, 4);
-            fs.Write(BitConverter.GetBytes(ysize), 0, 4);
+            fs.Write(BitConverter.GetBytes(size), 0, 4);
+            fs.Write(BitConverter.GetBytes(size), 0, 4);
             List<byte> bytes = new List<byte>();
-            for (int i = 0; i < xsize * ysize; i++)
+            for (int i = 0; i < size * size; i++)
             {
                 if (mask < 0)
                 {
@@ -80,13 +79,13 @@ namespace HopfieldNetwork
             int y = 0;
             y += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
 
-            if ((xsize == 0 && ysize == 0))
+            if ((size == 0 && size == 0))
             {
-                xsize = x;
-                ysize = y;
+                size = x;
+                size = y;
             }
 
-            if ((xsize != x || ysize != y)) return null;
+            if ((size != x || size != y)) return null;
 
 
             // else return null;
@@ -95,12 +94,12 @@ namespace HopfieldNetwork
             List<int> ret = new List<int>();
 
             int count = 0;
-            int counter = xsize * ysize;
-            if ((xsize * ysize) % 8 != 0)
+            int counter = size * size;
+            if ((size * size) % 8 != 0)
             {
-                count = (xsize * ysize) / 8 + 1;
+                count = (size * size) / 8 + 1;
             }
-            else count = (xsize * ysize) / 8;
+            else count = (size * size) / 8;
             Debug.Write("C " + count + "\n");
 
             for (int i = 0; i < count; i++)
@@ -134,35 +133,18 @@ namespace HopfieldNetwork
             return ret.ToArray();
         }
 
-        public static void test()
-        {
-            int[] t1 = new int[9] { -1, -1, -1, -1, 1, -1, -1, -1, -1 };
-            int[] t2 = new int[9] { -1, 1, -1, 1, -1, 1, -1, 1, -1 };
-            int[] t3 = new int[9] { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-            //savePattern(t1,"C:\\t1.p");
-           // int[] t4 = loadPattern("C:\\t1.p");
-            // int[] testVector = new int[9] { 1, -1, 1, -1, -1, 1, 1, -1, 1 };
-            int[] testVector = new int[9] { -1, 1, -1, 1, 1, -1, -1, 1, -1 };
-           
-            learningVectors.Add(t1);
-            learningVectors.Add(t2);
-            learningVectors.Add(t3);
-            setWeights(9);
-            //  printArray(weightMatrix,9);
-            
-            for (int i = 0; i < 9; i++)
-            {
-                neurons.Add(new Neuron(testVector[i], i));
-            }
 
+        // Tworzy pustą sieć o rozmiarze N x N
+        public static void InitializeNetwork(int N){
+            // Ustaw wagi na 0
+            size = N;
+            setWeights();
+            neurons.Clear();
+            for (int i = 0 ; i < N*N; i++)
+                neurons.Add(new Neuron(-1, i));
             enumerator = neurons.GetEnumerator();
-            Debug.WriteLine("Stan początkowy:");
-            foreach (Neuron n in neurons)
-            {
-                Debug.Write(n.getActivationState() + " ");
-            }
-            Debug.WriteLine("");
         }
+
 
 
         public static void Iterate()

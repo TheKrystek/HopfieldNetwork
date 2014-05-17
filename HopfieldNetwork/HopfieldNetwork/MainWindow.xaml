@@ -17,17 +17,20 @@
             <ColumnDefinition Width="306*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="button2" Content="Iteruj" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Click="Button_Click_1" Grid.Column="1" Margin="7.042,0,0,0" Height="21" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBlock1" Grid.Column="1"  Grid.Row="2" HorizontalAlignment="Stretch" Height="Auto" Margin="2,0,0,29" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Stretch" Width="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" Grid.RowSpan="2"/>
         <Canvas Grid.Row="1"  x:Name="weightsWisualization" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" Margin="0,10,0,0"  Width="auto" SizeChanged="weightsWisualization_SizeChanged"/>
         <Canvas  x:Name="neuronsWisualization" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Grid.Row="1" Grid.Column="1"/>
         <StatusBar Height="Auto" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Grid.ColumnSpan="3">
             <Label x:Name="StatusLabel" Content=""/>
         </StatusBar>
         <Menu HorizontalAlignment="Stretch" Height="30" VerticalAlignment="Stretch"  Width="Auto" Grid.ColumnSpan="3">
+            <MenuItem Header="_Program" >
+                <MenuItem Header="_Nowa sieć" Click="MenuItem_Click_2" />
+                <MenuItem Header="_Zapis stan sieci jako wektor uczący" Click="MenuItem_Click_3"  />
+            </MenuItem>
             <MenuItem Header="_Plik" >
                 <MenuItem Header="_Wczytaj" Click="MenuItem_Click"  />
                 <MenuItem Header="_Zapisz" Click="MenuItem_Click_1"  />
-                
+
             </MenuItem>
             <MenuItem Header="_Opcje">
                 <MenuItem Header="_Predkosc animacji" >
@@ -45,6 +48,24 @@
 
         <Canvas x:Name="summer" Grid.Column="2" HorizontalAlignment="Stretch" Height="Auto" Grid.Row="2" VerticalAlignment="Stretch" Width="Auto" SizeChanged="summer_SizeChanged"/>
         <Button x:Name="DoKonca" Content="Do końca" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Click="DoKonca_Click" Grid.Column="1" Margin="96,0,0,0" Height="21" VerticalAlignment="Top"/>
+        <TabControl Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TabItem Header="Wektory uczace">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="LearningVectorsList" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" MouseDoubleClick="LearningVectorsList_MouseDoubleClick" >
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="_Usun" Click="MenuItem_Click_5"/>
+                                <MenuItem Header="_Nazwij" Click="MenuItem_Click_6"/>
+                                <MenuItem Header="_Dodaj do sieci" Click="DodajWektorDoSieciNeuronowej"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
 
     </Grid>
 </controls:MetroWindow>
