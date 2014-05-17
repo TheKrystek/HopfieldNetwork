@@ -98,6 +98,29 @@ namespace HopfieldNetwork
             delay = 1400;
         }
 
+        void printNeurons(Neuron[] vector, int n)
+        {
+            int i = 0;
+            foreach (Neuron el in vector)
+            {
+                textBlock1.Text += el.getActivationState() + "\t";
+                i++;
+                if (i % n == 0) textBlock1.Text += "\n";
+            }
+        }
+
+        void printVector(int[] vector, int n)
+        {
+            int i = 0;
+            foreach (int el in vector)
+            {
+                textBlock1.Text += el + "\t";
+                i++;
+                if (i % n == 0) textBlock1.Text += "\n";
+            }
+        }
+
+
 
         // Przycisk Iteruj
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -112,6 +135,11 @@ namespace HopfieldNetwork
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
 
                     this.drawSummer(Network.enumerator.Current.getPartialResults());
+
+                    printNeurons(Network.neurons.ToArray(),neuronArraySize);
+                    Console.WriteLine();
+
+
                     if (iter < this.weightMatrixSize)
                         this.StatusLabel.Content = String.Format("Iteracja numer: {0}", iter);
                     else
@@ -573,8 +601,15 @@ namespace HopfieldNetwork
 
         private string ZapiszStanSieciDoTablicy(String name = "") {
             String vektor = "[";
+
             for (int i = 0; i < learningVector.Length; i++)
-                vektor += (learningVector[i] + " ");
+                // Jeżeli tryb edycji to po prostu pobierz dane z tymczasowego wektora uczacego
+                if (this.editMode)
+                    vektor += (learningVector[i] + " ");
+                // jezeli stan symulacji
+                else
+                    vektor += HopfieldNetwork.Network.neurons[i].getActivationState() + " ";
+
             if (name == "")
                 vektor += "] -  Wektor " + (LearningVectorsList.Items.Count + 1).ToString();
             else

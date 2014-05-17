@@ -33,6 +33,7 @@ namespace HopfieldNetwork
                 }
         }
 
+
         public static void savePattern(int[] pattern, string filename)
         {
             FileStream fs = new FileStream(filename, System.IO.FileMode.Create, System.IO.FileAccess.Write);

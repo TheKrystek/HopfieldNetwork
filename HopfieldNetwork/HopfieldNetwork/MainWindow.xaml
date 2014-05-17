@@ -77,7 +77,9 @@
                 </Grid>
             </TabItem>
             <TabItem Header="TabItem">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <TextBox x:Name="textBlock1" HorizontalAlignment="Stretch" Height="149" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Stretch" Width="353"/>
+                </Grid>
             </TabItem>
         </TabControl>
 
