@@ -24,8 +24,19 @@
         </StatusBar>
         <Menu HorizontalAlignment="Stretch" Height="30" VerticalAlignment="Stretch"  Width="Auto" Grid.ColumnSpan="3">
             <MenuItem Header="_Program" >
-                <MenuItem Header="_Nowa sieć" Click="MenuItem_Click_2" />
+                <MenuItem Header="_Nowa sieć">
+                    <MenuItem Header="3x3" Click="new_3x3" />
+                    <MenuItem Header="4x4" Click="new_4x4" />
+                    <MenuItem Header="5x5" Click="new_5x5" />
+                    <MenuItem Header="6x6" Click="new_6x6" />
+                    <MenuItem Header="7x7" Click="new_7x7" />
+                    <MenuItem Header="8x8" Click="new_8x8" />
+                    <MenuItem Header="9x9" Click="new_9x9" />
+                </MenuItem>
+                <MenuItem Header="_Wyczyść sieć" Click="MenuItem_Click_2" />
                 <MenuItem Header="_Zapis stan sieci jako wektor uczący" Click="MenuItem_Click_3"  />
+                <MenuItem Header="_Rozpocznij symulację" Click="RozpocznijSymulacje"/>
+                <MenuItem Header="_Resetuj symulację" Click="ResetujSymulacje"/>
             </MenuItem>
             <MenuItem Header="_Plik" >
                 <MenuItem Header="_Wczytaj" Click="MenuItem_Click"  />
@@ -42,7 +53,10 @@
                     <MenuItem Header="_Zmniejsz" Click="ZmniejszPredkosc"/>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="_Widok" />
+            <MenuItem Header="_Widok" >
+                <MenuItem x:Name="PokazSumatorMenu" Header="Pokaż sumator ✓" Click="PokazSumator" />
+                <MenuItem x:Name="PokazWagiMenu" Header="Pokaż wagi ✓" Click="PokazWagi" />
+            </MenuItem>
             <MenuItem Header="_Pomoc" />
         </Menu>
 

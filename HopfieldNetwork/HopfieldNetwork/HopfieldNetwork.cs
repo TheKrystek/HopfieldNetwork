@@ -15,7 +15,7 @@ namespace HopfieldNetwork
         public static List<int[]> learningVectors = new List<int[]>();
         public static List<Neuron>.Enumerator enumerator;
         public static int size = 3;
-
+        public static bool Initialized = false;
         public  static void setWeights()
         {
             int n = size * size;
@@ -143,30 +143,39 @@ namespace HopfieldNetwork
             for (int i = 0 ; i < N*N; i++)
                 neurons.Add(new Neuron(-1, i));
             enumerator = neurons.GetEnumerator();
+            Initialized = true;
         }
 
 
 
         public static void Iterate()
         {
+            try
+            {
+                if (!enumerator.MoveNext())
+                {
+                    enumerator.Dispose();
+                    enumerator = neurons.GetEnumerator();
+                    enumerator.MoveNext();
+                    Console.WriteLine("enumerator " + enumerator);
+                }
+            }
+            catch
+            {
+                enumerator = neurons.GetEnumerator();
+            }
+
             if (!enumerator.MoveNext())
             {
                 enumerator.Dispose();
                 enumerator = neurons.GetEnumerator();
                 enumerator.MoveNext();
-                Console.WriteLine("enumerator "+enumerator);
+                Console.WriteLine("enumerator " + enumerator);
             }
             Debug.WriteLine("Current neuron:" + enumerator.Current.getId());
             enumerator.Current.calculateEffectiveInput(neurons, weightMatrix);
             enumerator.Current.setActivationState();
-
-
-            foreach (Neuron n in neurons)
-            {
-                Debug.Write(n.getActivationState() + " ");
-            }
-
-            Debug.WriteLine("");
+          
         }
 
 
@@ -196,7 +205,6 @@ namespace HopfieldNetwork
 
         public void calculateEffectiveInput(List<Neuron> neurons, float[,] weightMatrix)
         {
-            //  this.prevActivationState = this.activationState;
             this.effectiveInput = 0;
             pr = new PartialReults(this.id);
             foreach (Neuron n in neurons)
@@ -206,8 +214,6 @@ namespace HopfieldNetwork
                 this.pr.addPartialResults(n.getId(), n.getActivationState(), weightMatrix[this.id, n.getId()], this.effectiveInput);
                 Debug.WriteLine(this.id + " " + n.getId() + " " + n.getActivationState() + " " + weightMatrix[this.id, n.getId()] + " " + this.effectiveInput);
             }
-            //  this.effectiveInput += prevActivationState;
-            //Debug.Write(" " +effectiveInput + " ");
         }
 
         public PartialReults getPartialResults()

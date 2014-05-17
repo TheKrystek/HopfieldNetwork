@@ -25,14 +25,18 @@ namespace HopfieldNetwork
     public partial class MainWindow 
 
     {
-        
+        // GUI
+        bool showSummer = true;
+        bool showWeightsNumbers = true;
+
+
 
         int iter = 0;
         bool finished = false;
-
+     
         int neuronArraySize = 3;
         int weightMatrixSize = 3;
-        int delay = 1400;
+        int delay = 400;
 
         bool editMode = true;
 
@@ -82,7 +86,7 @@ namespace HopfieldNetwork
         }
 
         void Szybko(object sender, RoutedEventArgs e) {
-            delay = 800;
+            delay = 600;
         }
         void Wolno(object sender, RoutedEventArgs e)
         {
@@ -98,7 +102,7 @@ namespace HopfieldNetwork
         // Przycisk Iteruj
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            if (!finished)
+            if (HopfieldNetwork.Network.Initialized && !finished)
             {
                 iter++;
                 HopfieldNetwork.Network.Iterate();
@@ -114,6 +118,10 @@ namespace HopfieldNetwork
                     {
                         finished = true;
                         this.StatusLabel.Content = "Osiągnięto stan stabilny";
+
+                        // Dodaj wynik działania jako nowy wektor na liste
+                        this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy("Wynik"));
+
                     }     
                 };
                
@@ -215,7 +223,8 @@ namespace HopfieldNetwork
 
                             tile.Child = new TextBlock()
                             {
-                                Text = text,
+                                // Jeżeli mamy macież większą niż 5 x 5 to nie pokazuj liczb w środku
+                                Text = (this.neuronArraySize <= 5 && this.showWeightsNumbers ? text : ""),
                                 HorizontalAlignment =
                                 HorizontalAlignment.Center,
                                 VerticalAlignment =
@@ -518,46 +527,62 @@ namespace HopfieldNetwork
             }
         }
 
-        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
-        {
-            // Stworz nowa siec o wymiarach N x N
+        // Stworz nowa siec o wymiarach N x N
+        private void createNewNetwork(int size) {
+            if (this.neuronArraySize != size) { 
+                this.neuronArraySize = size;
+                this.weightMatrixSize = size * size;
+                this.LearningVectorsList.Items.Clear();
+            }
+
             HopfieldNetwork.Network.InitializeNetwork(neuronArraySize);
             // Zresetuj wektor uczącu
             this.CreateLearningVector();
-            if (!finished)
-            {
+
                 // Ustaw tryb edycji sieci
                 this.editMode = true;
                 HopfieldNetwork.Network.Iterate();
-               
+
                 Action action = () =>
                 {
                     this.drawArray(Network.weightMatrix, this.weightMatrixSize);
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
                     this.drawSummer(Network.enumerator.Current.getPartialResults());
-             
+
                 };
                 var dispatcher = StatusLabel.Dispatcher;
                 if (dispatcher.CheckAccess())
                     action();
                 else
                     dispatcher.Invoke(action);
+  
+        }
 
-            }
+        // Resetuj sieć
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+           // Czyli stwórz nową sieć o takich samym rozmiarze
+            this.createNewNetwork(this.neuronArraySize);
         }
    
         // Zapisz stan sieci jako wektor uczacy
         private void MenuItem_Click_3(object sender, RoutedEventArgs e)
         {
-            String vektor = "[";
-            
-            for (int i = 0; i < learningVector.Length; i++)
-             vektor += (learningVector[i]+" ");
-            vektor += "] - Wektor " + (LearningVectorsList.Items.Count + 1).ToString();
-
-            this.LearningVectorsList.Items.Add(vektor);
-            Console.WriteLine("zapisano do listy");
+            this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy());
         }
+
+        private string ZapiszStanSieciDoTablicy(String name = "") {
+            String vektor = "[";
+            for (int i = 0; i < learningVector.Length; i++)
+                vektor += (learningVector[i] + " ");
+            if (name == "")
+                vektor += "] -  Wektor " + (LearningVectorsList.Items.Count + 1).ToString();
+            else
+                vektor += "] - " + name;
+            return vektor;
+        }
+
+
 
         // Wczytaj stan sieci z wektora uczacego na liscie
         private void LearningVectorsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -614,6 +639,69 @@ namespace HopfieldNetwork
             this.loadLearningVectorFromString(LearningVectorsList.SelectedItem.ToString(),true);
             drawArray(HopfieldNetwork.Network.weightMatrix,weightMatrixSize);
             this.LearningVectorsList.Items[LearningVectorsList.SelectedIndex] += " ✓";
+        }
+
+        private void RozpocznijSymulacje(object sender, RoutedEventArgs e)
+        {
+            // zapisz jako stan wejsciowy aktualny stan sieci
+            this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy("Stan wejściowy"));
+            this.editMode = false;
+            iter = 0;
+        }
+
+        private void new_3x3(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(3);
+        }
+
+        private void new_4x4(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(4);
+        }
+
+        private void new_5x5(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(5);
+        }
+
+        private void new_6x6(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(6);
+        }
+
+        private void new_7x7(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(7);
+        }
+
+        private void new_8x8(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(8);
+        }
+
+        private void new_9x9(object sender, RoutedEventArgs e)
+        {
+            this.createNewNetwork(9);
+        }
+
+        private void PokazSumator(object sender, RoutedEventArgs e)
+        {
+            this.showSummer = !this.showSummer;
+            this.summer.Visibility = (this.showSummer ?  Visibility.Visible : Visibility.Collapsed );
+            this.PokazSumatorMenu.Header = (this.showSummer ? "Pokaż sumator ✓" : "Pokaż sumator");
+        }
+
+        private void PokazWagi(object sender, RoutedEventArgs e)
+        {
+            this.showWeightsNumbers = !this.showWeightsNumbers;
+            this.PokazWagiMenu.Header = (this.showWeightsNumbers ? "Pokaż wagi ✓" : "Pokaż wagi");
+        }
+
+        private void ResetujSymulacje(object sender, RoutedEventArgs e)
+        {
+            this.editMode = false;
+            iter = 0;
+            this.finished = false;
         }
 
  
