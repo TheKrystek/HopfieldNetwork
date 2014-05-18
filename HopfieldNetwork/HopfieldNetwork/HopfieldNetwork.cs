@@ -16,7 +16,8 @@ namespace HopfieldNetwork
         public static List<Neuron>.Enumerator enumerator;
         public static int size = 3;
         public static bool Initialized = false;
-        public  static void setWeights()
+
+        public static void setWeights()
         {
             int n = size * size;
             weightMatrix = new float[n, n];
@@ -31,6 +32,38 @@ namespace HopfieldNetwork
                     }
                     weightMatrix[x, y] = weightMatrix[x, y] / n;
                 }
+        }
+
+        public static void setWeightsStorkey()
+        {
+             int n = size * size;
+            weightMatrix = new float[n, n];
+
+            for (int x = 0; x < n; x++)
+                for (int y = 0; y < n; y++)
+                {
+                    weightMatrix[x, y] = 0;
+                }
+
+            for (int x = 0; x < n; x++)
+                for (int y = 0; y < n; y++)
+                {
+                    if (x == y) continue;
+                    foreach (int[] learningVector in learningVectors)
+                    {
+
+                        float hij = 0;
+                        for (int k = 0; k < n; k++)
+                        {
+
+                            if (k == x || k == y) continue;
+                            hij += weightMatrix[x, k] * (float)learningVector[k];
+                        }
+                        weightMatrix[x, y] += (float)((learningVector[x] * learningVector[y]) / (float)n - (hij * learningVector[x]) / (float)n - (hij * learningVector[y]) / (float)n);
+
+                    }
+                }
+
         }
 
 

@@ -34,7 +34,7 @@
                     <MenuItem Header="9x9" Click="new_9x9" />
                 </MenuItem>
                 <MenuItem Header="_Wyczyść sieć" Click="MenuItem_Click_2" />
-                <MenuItem Header="_Zapis stan sieci jako wektor uczący" Click="MenuItem_Click_3"  />
+                <MenuItem Header="_Zapisz stan sieci jako wektor uczący" Click="MenuItem_Click_3"  />
                 <MenuItem Header="_Rozpocznij symulację" Click="RozpocznijSymulacje"/>
                 <MenuItem Header="_Resetuj symulację" Click="ResetujSymulacje"/>
             </MenuItem>
