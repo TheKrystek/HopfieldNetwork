@@ -140,15 +140,22 @@ namespace HopfieldNetwork
                     Console.WriteLine();
 
 
-                    if (iter < this.weightMatrixSize)
-                        this.StatusLabel.Content = String.Format("Iteracja numer: {0}", iter);
-                    else
-                    {
-                        finished = true;
-                        this.StatusLabel.Content = "Osiągnięto stan stabilny";
+                    this.StatusLabel.Content = String.Format("Iteracja numer: {0}", iter);
 
-                        // Dodaj wynik działania jako nowy wektor na liste
-                        this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy("Wynik"));
+                    if (iter % weightMatrixSize == 0)
+                    {
+                        if (HopfieldNetwork.Network.stable)
+                        {
+                            this.StatusLabel.Content = "Osiągnięto stan stabilny";
+
+                            // Dodaj wynik działania jako nowy wektor na liste
+                            this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy("Wynik"));
+                            finished = true;
+                        }
+                        else
+                            HopfieldNetwork.Network.stable = true;
+
+                        
 
                     }     
                 };
@@ -184,10 +191,19 @@ namespace HopfieldNetwork
            double range = (max - min) / colors.Length;
            weight = (weight + 1);
            int i = 0;
+    
+            if (weight == 2)
+                return (Color)ColorConverter.ConvertFromString(colors[0]);
+            if (weight == 0)
+                return (Color)ColorConverter.ConvertFromString(colors[colors.Length - 1]);
+   
+
            while (true)
                if (weight < (++i +1)*range)
                    break;
-           return (Color)ColorConverter.ConvertFromString(colors[colors.Length - i]);
+           i = i % colors.Length;   
+
+           return (Color)ColorConverter.ConvertFromString(colors[i]);
         }
 
 
@@ -208,7 +224,6 @@ namespace HopfieldNetwork
                     {
                         for (int x = -1; x <= y; x++)
                         {
-
                             FontWeight fw = FontWeights.Normal;
                             int th = 1;
                             SolidColorBrush brush = new SolidColorBrush();
@@ -499,8 +514,8 @@ namespace HopfieldNetwork
 
         private void weightsWisualization_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            this.drawArray(Network.weightMatrix, 9);
-            this.drawNeurons(Network.neurons.ToArray(), 3);
+            this.drawArray(Network.weightMatrix, this.weightMatrixSize);
+            this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
         }
 
         private void summer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -563,8 +578,11 @@ namespace HopfieldNetwork
                 this.LearningVectorsList.Items.Clear();
             }
 
+            HopfieldNetwork.Network.learningVectors.Clear();
+            HopfieldNetwork.Network.size = size;
+            HopfieldNetwork.Network.neurons.Clear();
             HopfieldNetwork.Network.InitializeNetwork(neuronArraySize);
-            // Zresetuj wektor uczącu
+            // Zresetuj wektor uczący
             this.CreateLearningVector();
 
                 // Ustaw tryb edycji sieci
@@ -590,6 +608,10 @@ namespace HopfieldNetwork
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
         {
            // Czyli stwórz nową sieć o takich samym rozmiarze
+            if (this.editMode)
+            { 
+                
+            }
             this.createNewNetwork(this.neuronArraySize);
         }
    
@@ -680,6 +702,11 @@ namespace HopfieldNetwork
         {
             // zapisz jako stan wejsciowy aktualny stan sieci
             this.LearningVectorsList.Items.Add(this.ZapiszStanSieciDoTablicy("Stan wejściowy"));
+            // Wczytaj zawartosc tymczasowego wektora uczacego do sieci neuronowej
+            HopfieldNetwork.Network.neurons.Clear();
+            for (int i = 0; i < this.learningVector.Length; i++)
+                HopfieldNetwork.Network.neurons.Add(new Neuron(this.learningVector[i], i));
+
             this.editMode = false;
             iter = 0;
         }
@@ -734,13 +761,24 @@ namespace HopfieldNetwork
 
         private void ResetujSymulacje(object sender, RoutedEventArgs e)
         {
-            this.editMode = false;
+            this.editMode = true;
             iter = 0;
             this.finished = false;
         }
 
- 
-  
+        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        {
+            HopfieldNetwork.Network.hebbs = true;
+            this.Hebb_menu.Header = "Reguła Hebb'a ✓";
+            this.Storkey_menu.Header = "Reguła Storkey'a";
+        }
 
+        private void Storkey(object sender, RoutedEventArgs e)
+        {
+            HopfieldNetwork.Network.hebbs = false;
+            this.Hebb_menu.Header = "Reguła Hebb'a";
+            this.Storkey_menu.Header = "Reguła Storkey'a  ✓";
+        }
+        
     }
 }

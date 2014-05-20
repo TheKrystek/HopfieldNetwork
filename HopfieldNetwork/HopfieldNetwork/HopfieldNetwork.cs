@@ -16,8 +16,19 @@ namespace HopfieldNetwork
         public static List<Neuron>.Enumerator enumerator;
         public static int size = 3;
         public static bool Initialized = false;
+        public static bool hebbs = false;
+        public static bool stable = true;
 
         public static void setWeights()
+        {
+            if (hebbs)
+                setWeightsHebb();
+            else
+                setWeightsStorkey();
+        }
+
+
+        public static void setWeightsHebb()
         {
             int n = size * size;
             weightMatrix = new float[n, n];
@@ -33,6 +44,7 @@ namespace HopfieldNetwork
                     weightMatrix[x, y] = weightMatrix[x, y] / n;
                 }
         }
+
 
         public static void setWeightsStorkey()
         {
@@ -120,8 +132,6 @@ namespace HopfieldNetwork
             }
 
             if ((size != x || size != y)) return null;
-
-
             // else return null;
 
             List<byte> bytes = new List<byte>();
@@ -178,6 +188,7 @@ namespace HopfieldNetwork
                 neurons.Add(new Neuron(-1, i));
             enumerator = neurons.GetEnumerator();
             Initialized = true;
+            stable = true;
         }
 
 
@@ -197,19 +208,24 @@ namespace HopfieldNetwork
             catch
             {
                 enumerator = neurons.GetEnumerator();
+                if (!enumerator.MoveNext())
+                {
+                    enumerator.Dispose();
+                    enumerator = neurons.GetEnumerator();
+                    enumerator.MoveNext();
+                    Console.WriteLine("enumerator " + enumerator);
+                }
             }
 
-            if (!enumerator.MoveNext())
-            {
-                enumerator.Dispose();
-                enumerator = neurons.GetEnumerator();
-                enumerator.MoveNext();
-                Console.WriteLine("enumerator " + enumerator);
-            }
+          
             Debug.WriteLine("Current neuron:" + enumerator.Current.getId());
             enumerator.Current.calculateEffectiveInput(neurons, weightMatrix);
+            int tmpActivationState = enumerator.Current.getActivationState();
             enumerator.Current.setActivationState();
-          
+
+            if (tmpActivationState != enumerator.Current.getActivationState())
+                stable = false;
+            
         }
 
 
