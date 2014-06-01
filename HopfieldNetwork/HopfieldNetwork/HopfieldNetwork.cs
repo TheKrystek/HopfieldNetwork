@@ -125,14 +125,9 @@ namespace HopfieldNetwork
             int y = 0;
             y += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
 
-            if ((size == 0 && size == 0))
-            {
-                size = x;
-                size = y;
-            }
-
-            if ((size != x || size != y)) return null;
-            // else return null;
+            if (size != x)
+                throw new Exception("Wczytano wektor o rozmiarze innym niż aktualnie używana sieć");
+            
 
             List<byte> bytes = new List<byte>();
             List<int> ret = new List<int>();

@@ -555,22 +555,32 @@ namespace HopfieldNetwork
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Pliki tekstowe (*.txt)|*.txt|Pliki out (*.out)|*.out|Wszystkie pliki (*.*)|*.*";
             Nullable<bool> result = dlg.ShowDialog();
+            dlg.Multiselect = true;
             // Jezeli nie wybrano anuluj
             if (result == true)
             {
-                int[] vector = Network.loadPattern(dlg.FileName);
+                foreach (var FileName in dlg.FileNames){
+                    try 
+	                {	        
+                        int[] vector = Network.loadPattern(dlg.FileName);
+                        String vektor = "[";
 
-                String vektor = "[";
+                        for (int i = 0; i < learningVector.Length; i++)
+                            // Jeżeli tryb edycji to po prostu pobierz dane z tymczasowego wektora uczacego
+                            if (this.editMode)
+                                vektor += (vector[i] + " ");
 
-                for (int i = 0; i < learningVector.Length; i++)
-                    // Jeżeli tryb edycji to po prostu pobierz dane z tymczasowego wektora uczacego
-                    if (this.editMode)
-                        vektor += (vector[i] + " ");
-
-                String[] parts = dlg.FileName.Split('\\'); 
-
-                vektor += "] - " + parts[parts.Length - 1];
-                this.LearningVectorsList.Items.Add(vektor);
+                        String[] parts = FileName.Split('\\'); 
+                        String filename =  parts[parts.Length - 1];
+                        filename = filename.Substring(0,filename.Length - 4);
+                        vektor += "] - " + filename;
+                        this.LearningVectorsList.Items.Add(vektor);
+	                }
+	                catch (Exception)
+	                {
+                        Console.WriteLine("Wektor o zlych rozmiarach");
+                    }
+                }
             }
         }
 
