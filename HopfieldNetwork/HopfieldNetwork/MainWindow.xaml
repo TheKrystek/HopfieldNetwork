@@ -12,18 +12,20 @@
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="38"/>
+            <ColumnDefinition Width="12"/>
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="47*"/>
             <ColumnDefinition Width="316*"/>
             <ColumnDefinition Width="393*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="button2" Content="Iteruj" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Click="Button_Click_1" Grid.Column="1" Margin="7,0,0,0" Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Canvas Grid.Row="1"  x:Name="weightsWisualization" Grid.Column="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" Margin="0,10,0,0"  Width="auto" SizeChanged="weightsWisualization_SizeChanged"/>
-        <Canvas  x:Name="neuronsWisualization" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="1" Margin="0,25,0,5" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
-        <StatusBar Height="Auto" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Grid.ColumnSpan="4">
+        <Button x:Name="button2" Content="1 krok" Grid.Row="3" HorizontalAlignment="Left"  Width="68" Click="Button_Click_1" Height="21" VerticalAlignment="Top" Margin="10,1,0,0" Grid.Column="3" Grid.ColumnSpan="2"/>
+        <Canvas Grid.Row="1"  x:Name="weightsWisualization" Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" Margin="0,10,0,0"  Width="auto" SizeChanged="weightsWisualization_SizeChanged"/>
+        <Canvas  x:Name="neuronsWisualization" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="Auto" Grid.Column="3" Margin="0,25,0,5" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
+        <StatusBar Height="Auto" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Grid.ColumnSpan="6">
             <Label x:Name="StatusLabel" Content=""/>
         </StatusBar>
-        <Menu HorizontalAlignment="Stretch" Height="30" VerticalAlignment="Stretch"  Width="Auto" Grid.ColumnSpan="4">
+        <Menu HorizontalAlignment="Stretch" Height="30" VerticalAlignment="Stretch"  Width="Auto" Grid.ColumnSpan="5">
             <MenuItem Header="_Program" >
                 <MenuItem Header="_Nowa sieć">
                     <MenuItem Header="3x3" Click="new_3x3" />
@@ -39,11 +41,7 @@
                 <MenuItem Header="_Rozpocznij symulację" Click="RozpocznijSymulacje"/>
                 <MenuItem Header="_Resetuj symulację" Click="ResetujSymulacje"/>
             </MenuItem>
-            <MenuItem Header="_Plik" >
-                <MenuItem Header="_Wczytaj" Click="MenuItem_Click"  />
-                <MenuItem Header="_Zapisz" Click="MenuItem_Click_1"  />
 
-            </MenuItem>
             <MenuItem Header="_Opcje">
                 <MenuItem Header="_Predkosc animacji" >
                     <MenuItem Header="_Szybko" Click="Szybko" />
@@ -63,9 +61,9 @@
             <MenuItem Header="_Pomoc" />
         </Menu>
 
-        <Canvas x:Name="summer" Grid.Column="3" HorizontalAlignment="Stretch" Height="Auto" Grid.Row="2" VerticalAlignment="Stretch" Width="Auto" SizeChanged="summer_SizeChanged"/>
-        <Button x:Name="DoKonca" Content="Do końca" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Click="DoKonca_Click" Grid.Column="2" Margin="49,0,0,0" Height="21" VerticalAlignment="Top"/>
-        <TabControl Grid.Column="1" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+        <Canvas x:Name="summer" Grid.Column="5" HorizontalAlignment="Stretch" Height="Auto" Grid.Row="2" VerticalAlignment="Stretch" Width="Auto" SizeChanged="summer_SizeChanged"/>
+        <Button x:Name="DoKonca" Content="Do końca" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Click="DoKonca_Click" Grid.Column="4" Margin="190,1,0,0" Height="21" VerticalAlignment="Top"/>
+        <TabControl Grid.Column="3" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <TabItem Header="Wektory uczace">
                 <Grid Background="#FFE5E5E5">
                     <ListBox x:Name="LearningVectorsList" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" MouseDoubleClick="LearningVectorsList_MouseDoubleClick" >
@@ -74,17 +72,37 @@
                                 <MenuItem Header="_Usun" Click="MenuItem_Click_5"/>
                                 <MenuItem Header="_Nazwij" Click="MenuItem_Click_6"/>
                                 <MenuItem Header="_Dodaj do sieci" Click="DodajWektorDoSieciNeuronowej"/>
+                                <MenuItem Header="_Wczytaj" Click="MenuItem_Click"  />
+                                <MenuItem Header="_Zapisz" Click="MenuItem_Click_1" />
                             </ContextMenu>
                         </ListBox.ContextMenu>
                     </ListBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
+            <TabItem Header="Logi">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="textBlock1" HorizontalAlignment="Stretch" Height="149" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Stretch" Width="353"/>
+                    <TextBox x:Name="textBlock1" HorizontalAlignment="Stretch" Height="Auto" TextWrapping="Wrap" VerticalAlignment="Stretch" Width="Auto"/>
                 </Grid>
             </TabItem>
         </TabControl>
+        <Button x:Name="Nkrokow" Content="N kroków" Grid.Row="3" HorizontalAlignment="Left"  Width="75" Margin="41,1,0,0" Height="21" VerticalAlignment="Top" Grid.Column="4" Click="Nkrokow_Click"/>
+        <TextBox x:Name="nsteps" Grid.Column="4" HorizontalAlignment="Left" Height="25" Margin="121,199,0,0" Grid.Row="2" TextWrapping="Wrap" Text="5" VerticalAlignment="Top" Width="64" Grid.RowSpan="2" TextChanged="nsteps_TextChanged" />
+        <StackPanel HorizontalAlignment="Stretch" Height="29" Grid.Row="3" VerticalAlignment="Bottom" Width="auto" Grid.ColumnSpan="5"/>
+        <DockPanel HorizontalAlignment="Left" Height="Auto" LastChildFill="False" VerticalAlignment="Stretch" Width="50" Grid.Row="1" Grid.ColumnSpan="2">
+            <ToolBarTray  Orientation="Vertical" Height="Auto" VerticalAlignment="Stretch" Width="50">
+                <ToolBar>
+                    <Button ToolTip="Zapisz aktualny stan sieci jako wektor uczący" Click="MenuItem_Click_3">
+                        <Image Source="resources/add.png" Width="15" />
+                    </Button>
+                    <Button Click="RozpocznijSymulacje"  >
+                        <Image Source="resources/start.png" Width="15" />
+                    </Button>
+                    <Button Click="ResetujSymulacje">
+                        <Image Source="resources/restart.png" Width="15" Stretch="Fill"/>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+        </DockPanel>
 
     </Grid>
 </controls:MetroWindow>

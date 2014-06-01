@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HopfieldNetwork", "HopfieldNetwork\HopfieldNetwork.csproj", "{2093FC38-9424-42CD-91EC-C84428486DDD}"
 EndProject
 Global

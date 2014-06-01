@@ -30,7 +30,7 @@ namespace HopfieldNetwork
         bool showWeightsNumbers = true;
 
 
-
+        int steps = 1;
         int iter = 0;
         bool finished = false;
      
@@ -125,18 +125,25 @@ namespace HopfieldNetwork
         // Przycisk Iteruj
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            this.iteruj();
+        }
+
+        private void iteruj()
+        {
+            if (!this.editMode)
             if (HopfieldNetwork.Network.Initialized && !finished)
             {
                 iter++;
                 HopfieldNetwork.Network.Iterate();
 
-                Action action = () => {
+                Action action = () =>
+                {
                     this.drawArray(Network.weightMatrix, this.weightMatrixSize);
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
 
                     this.drawSummer(Network.enumerator.Current.getPartialResults());
 
-                    printNeurons(Network.neurons.ToArray(),neuronArraySize);
+                    printNeurons(Network.neurons.ToArray(), neuronArraySize);
                     Console.WriteLine();
 
 
@@ -155,21 +162,20 @@ namespace HopfieldNetwork
                         else
                             HopfieldNetwork.Network.stable = true;
 
-                        
 
-                    }     
+
+                    }
                 };
-               
+
 
                 var dispatcher = StatusLabel.Dispatcher;
                 if (dispatcher.CheckAccess())
                     action();
                 else
-                    dispatcher.Invoke(action);    
-                
+                    dispatcher.Invoke(action);
+
             }
         }
-
 
 
 
@@ -526,6 +532,7 @@ namespace HopfieldNetwork
 
         private void DoKonca_Click(object sender, RoutedEventArgs e)
         {
+            if(!editMode)
             if (!worker.IsBusy)
                 worker.RunWorkerAsync();
 
@@ -551,22 +558,42 @@ namespace HopfieldNetwork
             // Jezeli nie wybrano anuluj
             if (result == true)
             {
-                int[] t4 = Network.loadPattern(dlg.FileName);
+                int[] vector = Network.loadPattern(dlg.FileName);
+
+                String vektor = "[";
+
+                for (int i = 0; i < learningVector.Length; i++)
+                    // Jeżeli tryb edycji to po prostu pobierz dane z tymczasowego wektora uczacego
+                    if (this.editMode)
+                        vektor += (vector[i] + " ");
+
+                String[] parts = dlg.FileName.Split('\\'); 
+
+                vektor += "] - " + parts[parts.Length - 1];
+                this.LearningVectorsList.Items.Add(vektor);
             }
         }
 
         private void MenuItem_Click_1(object sender, RoutedEventArgs e)
         {
+            if (LearningVectorsList.SelectedIndex == -1) return;
+            this.loadLearningVectorFromString(LearningVectorsList.SelectedItem.ToString(), true);
+            drawArray(HopfieldNetwork.Network.weightMatrix, weightMatrixSize);
             // Zapisz
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Pliki tekstowe (*.txt)|*.txt|Pliki out (*.out)|*.out|Wszystkie pliki (*.*)|*.*";
+            dlg.FileName = this.getLerningVectorName(this.LearningVectorsList.SelectedItem.ToString());
             Nullable<bool> result = dlg.ShowDialog();
             // Jezeli nie wybrano anuluj
             if (result == true)
             {
-                int[] t4 = Network.loadPattern(dlg.FileName);
-                Network.savePattern(t4,dlg.FileName);
+                int [] vector = new int[this.weightMatrixSize];
+                for (int i = 0; i < weightMatrixSize; i++)
+			    {
+                    vector[i] = Network.neurons.ToArray()[i].getActivationState();
+			    }
+                Network.savePattern(vector, dlg.FileName);
             }
         }
 
@@ -650,19 +677,30 @@ namespace HopfieldNetwork
             }
         }
 
-
-        private void loadLearningVectorFromString(String text, bool addToLerningVectors = false) {
+        private int[] getLearningVectorFromString(String text)
+        {
             int[] vector = new int[weightMatrixSize];
             text = text.Substring(1, text.IndexOf(']') - 2);
             string[] numbers = text.Split(' ');
             int i = 0;
-            HopfieldNetwork.Network.neurons.Clear();
             foreach (string number in numbers)
             {
-                HopfieldNetwork.Network.neurons.Add(new Neuron(int.Parse(number), i));
                 vector[i++] = int.Parse(number);
             }
-            if (addToLerningVectors) {
+            return vector;
+        }
+
+
+
+        private void loadLearningVectorFromString(String text, bool addToLerningVectors = false)
+        {
+            int[] vector = this.getLearningVectorFromString(text);
+            int i = 0;
+            HopfieldNetwork.Network.neurons.Clear();
+            foreach (int number in vector)
+                HopfieldNetwork.Network.neurons.Add(new Neuron(number, i++));
+            if (addToLerningVectors)
+            {
                 HopfieldNetwork.Network.learningVectors.Add(vector);
                 HopfieldNetwork.Network.setWeights();
             }
@@ -677,17 +715,30 @@ namespace HopfieldNetwork
             LearningVectorsList.Items.RemoveAt(LearningVectorsList.SelectedIndex);
         }
 
+
+        private string getLerningVectorName(String nazwa) {
+            String n =  nazwa.Substring(nazwa.IndexOf(']') + 4).Trim();
+            if (n.IndexOf('✓') >= 0)
+                n = n.Substring(0, n.Length - 3);
+            return n;
+        }
+
+        private string getLearningVectorValue(String nazwa) {
+            return nazwa.Substring(0, nazwa.IndexOf(']') + 1).Trim();
+        }
+
         // LearningVectorList ContextMenu Nazwij
         private void MenuItem_Click_6(object sender, RoutedEventArgs e)
         {
             if (LearningVectorsList.SelectedIndex == -1) return;
-            String nazwa = LearningVectorsList.SelectedItem.ToString();
-            Console.WriteLine(nazwa.Substring(0, nazwa.IndexOf(']')+1));
+            String wektor = LearningVectorsList.SelectedItem.ToString();
+            String nazwa = this.getLerningVectorName(wektor);
+            String wartosc = this.getLearningVectorValue(wektor);
 
-            String n = nazwa.Substring(nazwa.IndexOf(']') + 4);
-            if (n.IndexOf('✓') >= 0)
-                n = n.Substring(0,n.Length - 3);
-            Console.WriteLine(n);
+            Rename nazwij = new Rename();
+            nazwij.name = nazwa;
+            nazwij.ShowDialog();
+            LearningVectorsList.Items[LearningVectorsList.SelectedIndex] = wartosc + " - " + nazwij.name;
         }
 
         private void DodajWektorDoSieciNeuronowej(object sender, RoutedEventArgs e)
@@ -779,6 +830,33 @@ namespace HopfieldNetwork
             this.Hebb_menu.Header = "Reguła Hebb'a";
             this.Storkey_menu.Header = "Reguła Storkey'a  ✓";
         }
+
+        private void Nkrokow_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.nsteps.Text.Length > 0) {
+                for (int i = 0; i < steps; i++)
+                {
+                    iteruj();
+                }
+            }
+        }
+
+        private void nsteps_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.nsteps.Text.Length > 0)
+            {
+                try
+                {
+                   this.steps = int.Parse(nsteps.Text);
+                   this.Nkrokow.Content = steps.ToString() + " kroków";
+                }
+                catch (Exception)
+                {
+                }
+            }
+           
+        }
+
         
     }
 }
