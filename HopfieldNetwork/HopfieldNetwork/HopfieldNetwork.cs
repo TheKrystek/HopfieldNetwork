@@ -156,6 +156,30 @@ namespace HopfieldNetwork
             
         }
 
+        public static float calculateEnergy()
+        {
+            float result=0;
+
+            int i = 0, j = 0;
+
+         /*   for (i=0; i < size;i++ )
+                for (j = 0; j < size; j++)
+                {
+                    if (i == j) continue;
+                    result += (float)weightMatrix[i, j] * (float)neurons.ElementAt(i).getActivationState() * (float)neurons.ElementAt(j).getActivationState();
+                }
+
+                return -(result / 2);*/
+
+            for (i = 0; i < size; i++)
+                for (j = 0; j <=i; j++)
+                {
+                    if (i == j) continue;
+                    result += (float)weightMatrix[i, j] * (float)neurons.ElementAt(i).getActivationState() * (float)neurons.ElementAt(j).getActivationState();
+                }
+
+            return -result;
+        }
 
      
     }
