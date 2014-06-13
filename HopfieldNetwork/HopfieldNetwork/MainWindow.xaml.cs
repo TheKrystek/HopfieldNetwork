@@ -111,6 +111,7 @@ namespace HopfieldNetwork
 
         void printVector(int[] vector, int n)
         {
+            textBlock1.Text += "Wektor:\n";
             int i = 0;
             foreach (int el in vector)
             {
@@ -145,7 +146,7 @@ namespace HopfieldNetwork
 
                     this.drawSummer(Network.neurons[Network.current_neuron].getPartialResults());
 
-                    printNeurons(Network.neurons.ToArray(), neuronArraySize);
+                  //  printNeurons(Network.neurons.ToArray(), neuronArraySize);
                     Console.WriteLine();
 
 
@@ -382,6 +383,7 @@ namespace HopfieldNetwork
                     }
                 }
             }
+            printVector(learningVector, (int)Math.Sqrt(learningVector.Length));
         }
 
         private void CreateLearningVector() {
@@ -708,6 +710,7 @@ namespace HopfieldNetwork
         private void loadLearningVectorFromString(String text, bool addToLerningVectors = false)
         {
             int[] vector = this.getLearningVectorFromString(text);
+            
             int i = 0;
             HopfieldNetwork.Network.neurons.Clear();
             foreach (int number in vector)
@@ -718,6 +721,7 @@ namespace HopfieldNetwork
                 HopfieldNetwork.Network.setWeights();
             }
             this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
+            learningVector = vector;
         }
 
 
@@ -865,6 +869,7 @@ namespace HopfieldNetwork
                 {
                     iteruj();
                 }
+                label1.Content = "Energia:" + Network.calculateEnergy();
             }
         }
 
