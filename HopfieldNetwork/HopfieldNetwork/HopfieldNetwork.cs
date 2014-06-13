@@ -82,93 +82,40 @@ namespace HopfieldNetwork
         public static void savePattern(int[] pattern, string filename)
         {
             FileStream fs = new FileStream(filename, System.IO.FileMode.Create, System.IO.FileAccess.Write);
-            int mask = 7;
-            byte b = 0;
-            fs.Write(BitConverter.GetBytes(size), 0, 4);
-            fs.Write(BitConverter.GetBytes(size), 0, 4);
-            List<byte> bytes = new List<byte>();
-            for (int i = 0; i < size * size; i++)
+
+            foreach (int i in pattern)
             {
-                if (mask < 0)
+                if(i==1)
                 {
-                    Debug.Write("Byte " + Convert.ToString(b, 2) + "\n");
-                    bytes.Add(b);
-                    mask = 7;
-                    b = 0;
-
+                    fs.WriteByte((byte)'1');
                 }
-                if (pattern[i] == 1)
+                else
                 {
-                    b |= (byte)(1 << mask);
+                    fs.WriteByte((byte)'0');
                 }
-                else if (pattern[i] == -1)
-                {
-
-                }
-                mask--;
             }
-
-            if (mask > 0)
-            {
-                bytes.Add(b);
-                Debug.Write("Byte " + Convert.ToString(b, 2) + "\n");
-            }
-            fs.Write(bytes.ToArray(), 0, bytes.Count);
             fs.Close();
         }
 
         public static int[] loadPattern(string filename)
         {
             FileStream fs = new FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-            int x = 0;
-            x += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
-            int y = 0;
-            y += fs.ReadByte() + (fs.ReadByte() << 8) + (fs.ReadByte() << 16) + (fs.ReadByte() << 24);
-
-            if (size != x)
-                throw new Exception("Wczytano wektor o rozmiarze innym niż aktualnie używana sieć");
-            
-
-            List<byte> bytes = new List<byte>();
             List<int> ret = new List<int>();
 
-            int count = 0;
-            int counter = size * size;
-            if ((size * size) % 8 != 0)
+            int read;
+            while((read = fs.ReadByte()) > 0)
             {
-                count = (size * size) / 8 + 1;
-            }
-            else count = (size * size) / 8;
-            Debug.Write("C " + count + "\n");
-
-            for (int i = 0; i < count; i++)
-            {
-                byte bb = (byte)fs.ReadByte();
-                Debug.Write(bb + " ");
-                bytes.Add(bb);
-            }
-
-            // foreach (byte i in bytes) Debug.Write(i + " ");
-
-            foreach (byte b in bytes)
-            {
-
-                for (int mask = 7; mask >= 0; mask--)
+                Debug.WriteLine(read);
+                if((char) read =='1')
                 {
-                    if (counter == 0) break;
-                    if (((b >> mask) & 1) == 1)
-                    {
-                        ret.Add(1);
-                    }
-                    else
-                    {
-                        ret.Add(-1);
-                    }
-                    counter--;
+                    ret.Add(1);
+                }else
+                {
+                    ret.Add(-1);
                 }
-
             }
-            foreach (int i in ret) Debug.Write(i + " ");
+
+            if (ret.Count != size * size) throw new Exception("Wczytano wektor o rozmiarze innym niż aktualnie używana sieć");
             return ret.ToArray();
         }
 

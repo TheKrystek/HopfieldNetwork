@@ -578,6 +578,7 @@ namespace HopfieldNetwork
 	                }
 	                catch (Exception)
 	                {
+                        MessageBoxResult msg = MessageBox.Show("Zły rozmiar wektora.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                         Console.WriteLine("Wektor o zlych rozmiarach");
                     }
                 }
