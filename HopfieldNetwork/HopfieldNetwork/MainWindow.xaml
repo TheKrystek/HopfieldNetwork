@@ -53,6 +53,9 @@
                 </MenuItem>
                 <MenuItem x:Name="Hebb_menu" Header="_Reguła Hebb'a ✓" Click="MenuItem_Click_4"/>
                 <MenuItem x:Name="Storkey_menu" Header="_Reguła Storkey'a" Click="Storkey"/>
+                <Separator />
+                <MenuItem x:Name="Iter_seq" Header="_Iterowanie sekwencyjne ✓" Click="IterSeq"/>
+                <MenuItem x:Name="Iter_rand" Header="_Iterowanie losowe" Click="IterRand"/>
             </MenuItem>
             <MenuItem Header="_Widok" >
                 <MenuItem x:Name="PokazSumatorMenu" Header="Pokaż sumator ✓" Click="PokazSumator" />

@@ -141,7 +141,7 @@ namespace HopfieldNetwork
                     this.drawArray(Network.weightMatrix, this.weightMatrixSize);
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
 
-                    this.drawSummer(Network.enumerator.Current.getPartialResults());
+                    this.drawSummer(Network.neurons[Network.current_neuron].getPartialResults());
 
                     printNeurons(Network.neurons.ToArray(), neuronArraySize);
                     Console.WriteLine();
@@ -215,7 +215,7 @@ namespace HopfieldNetwork
 
         void drawArray(float[,] array, int n)
         {
-            if (Network.enumerator.Current != null)
+            if (Network.neuronEnum != null)
             {
                 weightsWisualization.Children.Clear();
                 if (weightsWisualization.ActualHeight > 0 && weightsWisualization.ActualWidth > 0)
@@ -225,7 +225,7 @@ namespace HopfieldNetwork
                     int startY = (int)(weightsWisualization.ActualHeight - n * tileSize) / 4;
                     int startX = (int)(weightsWisualization.ActualWidth - n * tileSize) / 2;
 
-                    PartialReults pr = Network.enumerator.Current.getPartialResults();
+                    PartialReults pr = Network.neurons[Network.current_neuron].getPartialResults();
                     for (int y = 0; y <= n; y++)
                     {
                         for (int x = -1; x <= y; x++)
@@ -301,7 +301,7 @@ namespace HopfieldNetwork
         void drawNeurons(Neuron[] vector, int n)
         {
             neuronsWisualization.Children.Clear();
-            if (Network.enumerator.Current != null)
+            if (Network.neuronEnum != null)
             {
                 if (neuronsWisualization.ActualHeight > 0 && neuronsWisualization.ActualWidth > 0)
                 {
@@ -320,7 +320,7 @@ namespace HopfieldNetwork
                         Border tile = new Border()
                         {
                             BorderBrush = Brushes.Black,
-                            BorderThickness = new Thickness((Network.enumerator.Current.getId() == i && editMode == false ? 2 : 1)),
+                            BorderThickness = new Thickness((Network.neurons[Network.current_neuron].getId() == i && editMode == false ? 2 : 1)),
                             Background = brush,
                             Width = tileSize,
                             Height = tileSize,
@@ -335,7 +335,7 @@ namespace HopfieldNetwork
                             HorizontalAlignment.Center,
                             VerticalAlignment =
                             VerticalAlignment.Center,
-                            FontWeight = (Network.enumerator.Current.getId() == i && editMode == false ? FontWeights.ExtraBold : FontWeights.Normal)
+                            FontWeight = (Network.neurons[Network.current_neuron].getId() == i && editMode == false ? FontWeights.ExtraBold : FontWeights.Normal)
                         };
                         ;
 
@@ -404,7 +404,7 @@ namespace HopfieldNetwork
             
             // Wyczysc poprzedni stan plotna 
             summer.Children.Clear();
-            if (Network.enumerator.Current != null)
+            if (Network.neuronEnum != null)
             {
                 #region  Rysowanie trojkata sumatora
                 // Linia pozioma
@@ -526,8 +526,8 @@ namespace HopfieldNetwork
 
         private void summer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (Network.enumerator.Current != null)
-            this.drawSummer(Network.enumerator.Current.getPartialResults());
+            if (Network.neuronEnum != null)
+                this.drawSummer(Network.neurons[Network.current_neuron].getPartialResults());
         }
 
         private void DoKonca_Click(object sender, RoutedEventArgs e)
@@ -631,7 +631,7 @@ namespace HopfieldNetwork
                 {
                     this.drawArray(Network.weightMatrix, this.weightMatrixSize);
                     this.drawNeurons(Network.neurons.ToArray(), this.neuronArraySize);
-                    this.drawSummer(Network.enumerator.Current.getPartialResults());
+                    this.drawSummer(Network.neurons[Network.current_neuron].getPartialResults());
 
                 };
                 var dispatcher = StatusLabel.Dispatcher;
@@ -840,6 +840,20 @@ namespace HopfieldNetwork
             HopfieldNetwork.Network.hebbs = false;
             this.Hebb_menu.Header = "Reguła Hebb'a";
             this.Storkey_menu.Header = "Reguła Storkey'a  ✓";
+        }
+
+        private void IterSeq(object sender, RoutedEventArgs e)
+        {
+            HopfieldNetwork.Network.randomSequence = false;
+            this.Iter_seq.Header = "Iterowanie sekwencyjne ✓";
+            this.Iter_rand.Header = "Iterowanie losowe";
+        }
+
+        private void IterRand(object sender, RoutedEventArgs e)
+        {
+            HopfieldNetwork.Network.randomSequence = true;
+            this.Iter_seq.Header = "Iterowanie sekwencyjne";
+            this.Iter_rand.Header = "Iterowanie losowe ✓";
         }
 
         private void Nkrokow_Click(object sender, RoutedEventArgs e)

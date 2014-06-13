@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using ListExtension;
 
 namespace HopfieldNetwork
 {
@@ -13,11 +14,14 @@ namespace HopfieldNetwork
         public static float[,] weightMatrix;
         public static List<Neuron> neurons = new List<Neuron>();
         public static List<int[]> learningVectors = new List<int[]>();
-        public static List<Neuron>.Enumerator enumerator;
+        public static List<int> neuronEnum;
+        //public static List<Neuron>.Enumerator enumerator;
         public static int size = 3;
+        public static int current_neuron = 0;
         public static bool Initialized = false;
         public static bool hebbs = false;
         public static bool stable = true;
+        public static bool randomSequence = false;
 
         public static void setWeights()
         {
@@ -128,7 +132,8 @@ namespace HopfieldNetwork
             neurons.Clear();
             for (int i = 0 ; i < N*N; i++)
                 neurons.Add(new Neuron(-1, i));
-            enumerator = neurons.GetEnumerator();
+           // enumerator = neurons.GetEnumerator();
+            neuronEnum = new List<int>();
             Initialized = true;
             stable = true;
         }
@@ -137,35 +142,16 @@ namespace HopfieldNetwork
 
         public static void Iterate()
         {
-            try
-            {
-                if (!enumerator.MoveNext())
-                {
-                    enumerator.Dispose();
-                    enumerator = neurons.GetEnumerator();
-                    enumerator.MoveNext();
-                    Console.WriteLine("enumerator " + enumerator);
-                }
-            }
-            catch
-            {
-                enumerator = neurons.GetEnumerator();
-                if (!enumerator.MoveNext())
-                {
-                    enumerator.Dispose();
-                    enumerator = neurons.GetEnumerator();
-                    enumerator.MoveNext();
-                    Console.WriteLine("enumerator " + enumerator);
-                }
-            }
-
-          
-            Debug.WriteLine("Current neuron:" + enumerator.Current.getId());
-            enumerator.Current.calculateEffectiveInput(neurons, weightMatrix);
-            int tmpActivationState = enumerator.Current.getActivationState();
-            enumerator.Current.setActivationState();
-
-            if (tmpActivationState != enumerator.Current.getActivationState())
+            
+            if (neuronEnum.Count == 0) for (int i = 0; i < size * size; i++) neuronEnum.Add(i);
+            if (randomSequence == true) neuronEnum.Shuffle();
+            current_neuron =  neuronEnum.First();
+            neuronEnum.Remove(neuronEnum.First());
+            neurons[current_neuron].calculateEffectiveInput(neurons, weightMatrix);
+            int tmpActivationState = neurons[current_neuron].getActivationState();
+           neurons[current_neuron].setActivationState();
+            
+            if (tmpActivationState != neurons[current_neuron].getActivationState())
                 stable = false;
             
         }
