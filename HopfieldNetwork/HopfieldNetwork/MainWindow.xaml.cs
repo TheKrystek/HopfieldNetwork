@@ -558,8 +558,8 @@ namespace HopfieldNetwork
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Pliki tekstowe (*.txt)|*.txt|Pliki out (*.out)|*.out|Wszystkie pliki (*.*)|*.*";
-            Nullable<bool> result = dlg.ShowDialog();
             dlg.Multiselect = true;
+            Nullable<bool> result = dlg.ShowDialog();
             // Jezeli nie wybrano anuluj
             if (result == true)
             {
@@ -887,6 +887,12 @@ namespace HopfieldNetwork
                 }
             }
            
+        }
+
+        private void MenuItem_Click_7(object sender, RoutedEventArgs e)
+        {
+            Help h = new Help();
+            h.Show();
         }
 
         

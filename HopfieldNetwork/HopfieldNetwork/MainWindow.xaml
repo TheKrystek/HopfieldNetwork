@@ -43,9 +43,9 @@
             </MenuItem>
 
             <MenuItem Header="_Opcje">
-                <MenuItem Header="_Predkosc animacji" >
+                <MenuItem Header="_Predkość animacji" >
                     <MenuItem Header="_Szybko" Click="Szybko" />
-                    <MenuItem Header="_Sredio" Click="Srednio" />
+                    <MenuItem Header="_Średio" Click="Srednio" />
                     <MenuItem Header="_Wolno" Click="Wolno" />
                     <Separator />
                     <MenuItem Header="_Zwieksz"  Click="ZwiekszPredkosc"/>
@@ -61,7 +61,7 @@
                 <MenuItem x:Name="PokazSumatorMenu" Header="Pokaż sumator ✓" Click="PokazSumator" />
                 <MenuItem x:Name="PokazWagiMenu" Header="Pokaż wagi ✓" Click="PokazWagi" />
             </MenuItem>
-            <MenuItem Header="_Pomoc" />
+            <MenuItem Header="_Pomoc" Click="MenuItem_Click_7" />
         </Menu>
 
         <Canvas x:Name="summer" Grid.Column="5" HorizontalAlignment="Stretch" Height="Auto" Grid.Row="2" VerticalAlignment="Stretch" Width="Auto" SizeChanged="summer_SizeChanged"/>
