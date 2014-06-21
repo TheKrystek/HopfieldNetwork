@@ -127,8 +127,17 @@ namespace HopfieldNetwork
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             this.iteruj();
-            label1.Content = "Energia:" + Network.calculateEnergy();
-               
+            try
+            {
+                label1.Content = "Energia:" + Network.calculateEnergy();
+            }
+            catch(Exception ex)
+            {
+               this.Dispatcher.Invoke((Action)(() =>
+             {
+                 label1.Content = "Energia:" + Network.calculateEnergy();
+                 }));
+            }
         }
 
         private void iteruj()
