@@ -29,7 +29,7 @@ namespace HopfieldNetwork
         bool showSummer = true;
         bool showWeightsNumbers = true;
 
-
+        int remainingSteps = 0;
         int steps = 1;
         int iter = 0;
         bool finished = false;
@@ -43,6 +43,7 @@ namespace HopfieldNetwork
         int[] learningVector;
 
         private readonly BackgroundWorker worker = new BackgroundWorker();
+        private readonly BackgroundWorker workerNSteps = new BackgroundWorker();
 
         public static RoutedCommand ZmniejszPredkoscCom = new RoutedCommand();
         public static RoutedCommand ZwiekszPredkoscCom = new RoutedCommand();
@@ -59,6 +60,7 @@ namespace HopfieldNetwork
 
             InitializeComponent();
             worker.DoWork += worker_DoWork;
+            workerNSteps.DoWork += worker_DoWork_NSteps;
 
             this.CreateLearningVector();
 
@@ -126,9 +128,7 @@ namespace HopfieldNetwork
         // Przycisk Iteruj
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            this.iteruj();
-            label1.Content = "Energia:" + Network.calculateEnergy();
-               
+            this.iteruj();          
         }
 
         private void iteruj()
@@ -146,12 +146,8 @@ namespace HopfieldNetwork
 
                     this.drawSummer(Network.neurons[Network.current_neuron].getPartialResults());
 
-                  //  printNeurons(Network.neurons.ToArray(), neuronArraySize);
-                    Console.WriteLine();
-
-
                     this.StatusLabel.Content = String.Format("Iteracja numer: {0}", iter);
-
+                    this.label1.Content = "Energia:" + Network.calculateEnergy();
                     if (iter % weightMatrixSize == 0)
                     {
                         if (HopfieldNetwork.Network.stable)
@@ -547,10 +543,21 @@ namespace HopfieldNetwork
         {
             while (!finished)
             {
-                Button_Click_1(null, null);
+                this.iteruj();
                 Thread.Sleep(delay);
             }
         }
+
+        private void worker_DoWork_NSteps(object sender, DoWorkEventArgs e)
+        {
+            while (!finished && this.remainingSteps > 0)
+            {
+                this.iteruj();
+                remainingSteps--;
+                Thread.Sleep(delay);
+            }
+        }
+
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -566,7 +573,7 @@ namespace HopfieldNetwork
                 foreach (var FileName in dlg.FileNames){
                     try 
 	                {	        
-                        int[] vector = Network.loadPattern(dlg.FileName);
+                        int[] vector = Network.loadPattern(FileName);
                         String vektor = "[";
 
                         for (int i = 0; i < learningVector.Length; i++)
@@ -777,6 +784,9 @@ namespace HopfieldNetwork
 
             this.editMode = false;
             iter = 0;
+            this.wyczysc_siec_menu.IsEnabled = false;
+            this.rozpocznij_symulacje_menu.IsEnabled = false;
+
         }
 
         private void new_3x3(object sender, RoutedEventArgs e)
@@ -832,6 +842,9 @@ namespace HopfieldNetwork
             this.editMode = true;
             iter = 0;
             this.finished = false;
+
+            this.wyczysc_siec_menu.IsEnabled = true;
+            this.rozpocznij_symulacje_menu.IsEnabled = true;
         }
 
         private void MenuItem_Click_4(object sender, RoutedEventArgs e)
@@ -865,11 +878,9 @@ namespace HopfieldNetwork
         private void Nkrokow_Click(object sender, RoutedEventArgs e)
         {
             if (this.nsteps.Text.Length > 0) {
-                for (int i = 0; i < steps; i++)
-                {
-                    iteruj();
-                }
-                label1.Content = "Energia:" + Network.calculateEnergy();
+                this.remainingSteps = steps;
+                if (!workerNSteps.IsBusy)
+                    this.workerNSteps.RunWorkerAsync();
             }
         }
 

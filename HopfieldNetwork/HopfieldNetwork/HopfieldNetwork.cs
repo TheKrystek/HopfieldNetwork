@@ -132,7 +132,7 @@ namespace HopfieldNetwork
             neurons.Clear();
             for (int i = 0 ; i < N*N; i++)
                 neurons.Add(new Neuron(-1, i));
-           // enumerator = neurons.GetEnumerator();
+            current_neuron = 0;
             neuronEnum = new List<int>();
             Initialized = true;
             stable = true;

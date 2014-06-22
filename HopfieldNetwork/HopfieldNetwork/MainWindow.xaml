@@ -36,9 +36,9 @@
                     <MenuItem Header="8x8" Click="new_8x8" />
                     <MenuItem Header="9x9" Click="new_9x9" />
                 </MenuItem>
-                <MenuItem Header="_Wyczyść sieć" Click="MenuItem_Click_2" />
+                <MenuItem x:Name="wyczysc_siec_menu" Header="_Wyczyść sieć" Click="MenuItem_Click_2" />
                 <MenuItem Header="_Zapisz stan sieci jako wektor uczący" Click="MenuItem_Click_3"  />
-                <MenuItem Header="_Rozpocznij symulację" Click="RozpocznijSymulacje"/>
+                <MenuItem x:Name="rozpocznij_symulacje_menu" Header="_Rozpocznij symulację" Click="RozpocznijSymulacje"/>
                 <MenuItem Header="_Resetuj symulację" Click="ResetujSymulacje"/>
             </MenuItem>
 
@@ -72,7 +72,7 @@
                     <ListBox x:Name="LearningVectorsList" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" MouseDoubleClick="LearningVectorsList_MouseDoubleClick" >
                         <ListBox.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="_Usun" Click="MenuItem_Click_5"/>
+                                <MenuItem Header="_Usuń" Click="MenuItem_Click_5"/>
                                 <MenuItem Header="_Nazwij" Click="MenuItem_Click_6"/>
                                 <MenuItem Header="_Dodaj do sieci" Click="DodajWektorDoSieciNeuronowej"/>
                                 <MenuItem Header="_Wczytaj" Click="MenuItem_Click"  />
